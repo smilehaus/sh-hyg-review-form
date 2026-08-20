@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDH Annual Review — Smile Haus</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --onyx: #2A2E31; --alabaster: #F2EFE8; --sandstone: #D6CDBD;
+  --taupe: #C2B09E; --earth: #877765; --white: #FFFFFF; --radius: 6px;
+  --font-head: 'Cormorant Garamond', serif; --font-body: 'Jost', sans-serif;
+}
+body { font-family: var(--font-body); background: var(--alabaster); color: var(--onyx); font-size: 15px; line-height: 1.5; }
+
+/* Header */
+.site-header { background: var(--onyx); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.site-header img { height: 36px; flex-shrink: 0; }
+.site-header h1 { font-family: var(--font-head); color: var(--white); font-weight: 300; font-size: 22px; letter-spacing: 0.04em; flex: 1; text-align: center; }
+.hdr-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--white); border-radius: var(--radius); padding: 6px 14px; cursor: pointer; font-family: var(--font-body); font-size: 13px; white-space: nowrap; transition: border-color .15s, color .15s; }
+.hdr-btn:hover { border-color: rgba(255,255,255,0.7); }
+.hdr-btn.green:hover { border-color: #81c784; color: #81c784; }
+.hdr-btn.red:hover   { border-color: #ff8a80; color: #ff8a80; }
+
+/* Main */
+.main { max-width: 960px; margin: 0 auto; padding: 28px 24px 80px; }
+
+/* Score summary sticky */
+.score-summary {
+  position: sticky; top: 10px; z-index: 10;
+  background: var(--onyx); color: var(--white); border-radius: var(--radius);
+  padding: 14px 24px; margin-bottom: 20px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 16px; align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+@media (max-width:600px) { .score-summary { grid-template-columns: 1fr 1fr; } }
+.sum-block { text-align: center; }
+.sum-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 2px; }
+.sum-value { font-size: 22px; font-weight: 600; font-family: var(--font-head); line-height: 1; }
+.sum-value.hl { color: var(--taupe); }
+.band-block { text-align: right; }
+.band-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.raise-preview { font-size: 28px; font-weight: 700; font-family: var(--font-head); line-height: 1; }
+.new-rate-line { font-size: 12px; opacity: 0.55; margin-top: 3px; }
+.gate-pills { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; flex-wrap: wrap; }
+.gate-pill { font-size: 11px; padding: 2px 9px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); }
+.gate-pill.pass { border-color: #a8c470; color: #a8c470; }
+.band-pip { color: #e87770; } .band-coaching { color: #e8c170; }
+.band-meets { color: #a8c470; } .band-exceeds { color: #70c4b8; } .band-outstanding { color: #c4a070; }
+
+/* Scale bar */
+.scale-bar { background: var(--white); border: 1px solid var(--sandstone); border-radius: var(--radius); padding: 8px 16px; font-size: 12px; text-align: center; color: var(--earth); margin-bottom: 18px; }
+.scale-bar b { color: var(--onyx); }
+
+/* Cards */
+.card { background: var(--white); border: 1px solid var(--sandstone); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+.card-header { background: var(--onyx); color: var(--white); padding: 11px 20px; display: flex; align-items: center; justify-content: space-between; }
+.card-header h2 { font-family: var(--font-head); font-weight: 300; font-size: 18px; letter-spacing: 0.03em; }
+.card-header .pts { font-size: 12px; opacity: 0.55; }
+.card-body { padding: 20px; }
+
+/* Info grid */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width:560px) { .info-grid { grid-template-columns: 1fr; } }
+label.field-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--earth); margin-bottom: 4px; }
+input[type=text], input[type=date], input[type=number], select, textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--sandstone); border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 14px; background: var(--white); color: var(--onyx);
+}
+textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); border-color: transparent; }
+
+/* Tables */
+.kpi-table, .perf-table { width: 100%; border-collapse: collapse; }
+.kpi-table th, .perf-table th { background: var(--earth); color: var(--white); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 9px 14px; text-align: left; }
+.kpi-table th.c { text-align: center; }
+.kpi-table td, .perf-table td { padding: 9px 14px; border-bottom: 1px solid var(--sandstone); vertical-align: middle; }
+.kpi-table tr:last-child td, .perf-table tr:last-child td { border-bottom: none; }
+.kpi-table tr:nth-child(even) td, .perf-table tr:nth-child(even) td { background: var(--alabaster); }
+.kpi-name { font-size: 14px; font-weight: 500; }
+.kpi-sub  { font-size: 12px; color: #5a4a3c; margin-top: 2px; }
+
+/* Score buttons */
+.score-btns { display: flex; gap: 5px; justify-content: flex-end; }
+.score-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--radius); border: 1.5px solid var(--sandstone);
+  background: var(--white); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: var(--font-body); transition: all .12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.score-btn:hover:not(.active) { background: var(--alabaster); border-color: var(--taupe); }
+.score-btn[data-s="0"].active { background: #e0e0e0; border-color: #bbb; color: #555; }
+.score-btn[data-s="1"].active { background: #ef9a9a; border-color: #e57373; color: #fff; }
+.score-btn[data-s="2"].active { background: #ffcc80; border-color: #ffa726; color: #555; }
+.score-btn[data-s="3"].active { background: #fff176; border-color: #f9a825; color: #555; }
+.score-btn[data-s="4"].active { background: #a5d6a7; border-color: #66bb6a; color: #fff; }
+.score-btn[data-s="5"].active { background: #4ecdc4; border-color: #26a69a; color: #fff; }
+
+/* Perf section label */
+.subsection-header { background: var(--alabaster); border-bottom: 1px solid var(--sandstone); padding: 8px 14px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--earth); margin-top: 2px; }
+.perf-table td.notes-cell textarea { min-height: 52px; font-size: 13px; }
+
+/* Tier accordion */
+.tier-accordion { margin-bottom: 20px; }
+.tier-block { background: var(--white); border: 1px solid var(--sandstone); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.tier-block-header { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.tier-block-header:hover { background: var(--alabaster); }
+.tier-info { display: flex; align-items: center; gap: 12px; }
+.tier-badge { background: var(--onyx); color: var(--white); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; letter-spacing: .5px; }
+.tier-label { font-size: 14px; font-weight: 600; }
+.tier-rate  { font-size: 13px; color: var(--earth); }
+.tier-arrow { font-size: 12px; color: var(--taupe); transition: transform .2s; }
+.tier-block.open .tier-arrow { transform: rotate(180deg); }
+.tier-block-body { display: none; padding: 0 18px 18px; }
+.tier-block.open .tier-block-body { display: block; }
+.skill-list { list-style: none; }
+.skill-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--alabaster); font-size: 14px; }
+.skill-item:last-child { border-bottom: none; }
+.skill-cb { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--earth); flex-shrink: 0; }
+.skill-text { flex: 1; line-height: 1.4; }
+.del-btn { background: none; border: none; color: var(--sandstone); cursor: pointer; font-size: 12px; padding: 0 2px; }
+.del-btn:hover { color: #c0392b; }
+.add-skill-row { display: flex; gap: 8px; margin-top: 10px; }
+.add-skill-input { flex: 1; border: 1px solid var(--sandstone); border-radius: var(--radius); padding: 7px 10px; font-size: 13px; font-family: var(--font-body); }
+.add-skill-btn { background: var(--onyx); color: var(--white); border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+.template-actions { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--sandstone); }
+.tmpl-btn { background: var(--alabaster); border: none; border-radius: var(--radius); padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: var(--font-body); color: var(--earth); }
+.tmpl-btn:hover { background: var(--sandstone); }
+
+/* Override */
+.override-card-body { padding: 20px; }
+.override-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.override-toggle input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--earth); }
+.override-toggle label { font-weight: 600; font-size: 14px; cursor: pointer; }
+.override-fields { display: none; }
+.override-fields.vis { display: block; }
+.override-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+/* Gate summary */
+.gate-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.gate-box { background: var(--alabaster); border: 1px solid var(--sandstone); border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+.gate-box .gate-label { font-size: 13px; font-weight: 600; }
+.gate-box .gate-status { font-size: 13px; font-weight: 700; color: #c0392b; }
+.gate-box.pass .gate-status { color: #27ae60; }
+
+/* Sig & submit */
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+@media (max-width:560px) { .sig-grid { grid-template-columns: 1fr; } }
+.submit-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.submit-note { font-size: 13px; color: var(--earth); }
+.submit-btn { background: var(--onyx); color: var(--white); border: none; border-radius: var(--radius); padding: 12px 30px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: background .15s; }
+.submit-btn:hover { background: #1a1e21; }
+.submit-btn:disabled { background: var(--sandstone); cursor: not-allowed; }
+
+/* Footer */
+.form-footer { text-align: center; font-size: 12px; color: var(--taupe); margin-top: 40px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--onyx); color: var(--white); border-radius: var(--radius); padding: 12px 20px; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.3); opacity: 0; transform: translateY(10px); transition: opacity .25s, transform .25s; pointer-events: none; z-index: 9999; border-left: 4px solid transparent; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.ok  { border-left-color: #a8c470; }
+.toast.err { border-left-color: #e87770; }
+
+/* Modal */
+.modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-ov.open { opacity: 1; pointer-events: auto; }
+.modal-box { background: var(--white); border-radius: var(--radius); padding: 28px; width: 420px; max-width: calc(100vw - 32px); box-shadow: 0 8px 40px rgba(0,0,0,.25); }
+.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.modal-body { font-size: 14px; color: var(--earth); margin-bottom: 20px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-cancel  { background: var(--alabaster); border: none; border-radius: var(--radius); padding: 9px 18px; font-size: 14px; cursor: pointer; font-family: var(--font-body); }
+.btn-confirm { background: var(--onyx); color: var(--white); border: none; border-radius: var(--radius); padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font-body); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <img src="logo-white.png" alt="Smile Haus" onerror="this.style.display='none'">
+  <h1>Dental Hygienist Annual Review</h1>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <button class="hdr-btn green" onclick="saveDraft()">Save Draft</button>
+    <button class="hdr-btn" onclick="generatePDF()">Download PDF</button>
+    <button class="hdr-btn red" onclick="confirmReset()">Reset</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Sticky score summary -->
+  <div class="score-summary">
+    <div class="sum-block">
+      <div class="sum-label">Part 1 · KPI</div>
+      <div class="sum-value hl" id="sumP1">—</div>
+    </div>
+    <div class="sum-block">
+      <div class="sum-label">Part 2 · Performance</div>
+      <div class="sum-value hl" id="sumP2">—</div>
+    </div>
+    <div class="sum-block">
+      <div class="sum-label">Total / <span id="sumMax">115</span></div>
+      <div class="sum-value" id="sumTotal">—</div>
+    </div>
+    <div class="band-block">
+      <div class="band-name" id="bandName">—</div>
+      <div class="raise-preview" id="raisePreview">$—</div>
+      <div class="new-rate-line" id="newRateLine">Enter tier &amp; rate to calculate raise</div>
+      <div class="gate-pills">
+        <span class="gate-pill" id="gateAPill">Gate A</span>
+        <span class="gate-pill" id="gateBPill">Gate B</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scale bar -->
+  <div class="scale-bar">
+    Score scale: <b>0</b> Not observed &nbsp;·&nbsp; <b>1</b> Below &nbsp;·&nbsp; <b>2</b> Developing &nbsp;·&nbsp; <b>3</b> Meets &nbsp;·&nbsp; <b>4</b> Exceeds &nbsp;·&nbsp; <b>5</b> Outstanding
+  </div>
+
+  <!-- Employee Info -->
+  <div class="card">
+    <div class="card-header"><h2>Hygienist Information</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div>
+          <label class="field-label">Hygienist Name</label>
+          <input type="text" id="hygName" placeholder="Full name" autocomplete="off">
+        </div>
+        <div>
+          <label class="field-label">Home Office</label>
+          <select id="homeOffice">
+            <option value="">Select office...</option>
+            <option>Georgetown</option>
+            <option>On the Square</option>
+            <option>Austin</option>
+            <option>Implant Center</option>
+            <option>Medical Parkway</option>
+            <option>Arboretum</option>
+            <option>Pflugerville</option>
+            <option>South Austin</option>
+            <option>New Braunfels Dental Arts</option>
+            <option>Anderson Mill</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Current Pay Rate ($/hr)</label>
+          <input type="number" id="currentRate" placeholder="e.g. 58.00" step="0.25" min="0" oninput="onRateChange()">
+        </div>
+        <div>
+          <label class="field-label">Current Tier</label>
+          <select id="currentTier" onchange="recalc()">
+            <option value="">Select tier...</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Hire Date</label>
+          <input type="date" id="hireDate">
+        </div>
+        <div>
+          <label class="field-label">Review Date</label>
+          <input type="date" id="reviewDate">
+        </div>
+        <div>
+          <label class="field-label">Reviewer Name</label>
+          <input type="text" id="reviewerName" placeholder="Office Manager or Regional" autocomplete="off">
+        </div>
+        <div>
+          <label class="field-label">Review Period</label>
+          <input type="text" id="reviewPeriod" placeholder="e.g. Jan – Dec 2025">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 1: KPIs -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Part 1 — KPI Performance</h2>
+      <span class="pts">8 KPIs · max 40 pts</span>
+    </div>
+    <div class="card-body">
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>Target</th>
+            <th class="c">Score</th>
+          </tr>
+        </thead>
+        <tbody id="kpiBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Part 2: Performance Sections -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Part 2 — Performance Evaluation</h2>
+      <span class="pts">3 sections · max 75 pts</span>
+    </div>
+    <div class="card-body" id="perfBody"></div>
+  </div>
+
+  <!-- Tier accordion -->
+  <div class="tier-accordion" id="tierAccordion"></div>
+
+  <!-- Override -->
+  <div class="card">
+    <div class="card-header"><h2>Compensation Override (Optional)</h2></div>
+    <div class="override-card-body">
+      <div class="override-toggle">
+        <input type="checkbox" id="overrideCheck" onchange="toggleOverride()">
+        <label for="overrideCheck">Apply a manual rate override for this review</label>
+      </div>
+      <div class="override-fields" id="overrideFields">
+        <div class="gate-summary" id="gateSummary">
+          <div class="gate-box" id="gateABox">
+            <span class="gate-label">Gate A · Production &amp; Recall</span>
+            <span class="gate-status" id="gateAStatus">—</span>
+          </div>
+          <div class="gate-box" id="gateBBox">
+            <span class="gate-label">Gate B · Score ≥ 85</span>
+            <span class="gate-status" id="gateBStatus">—</span>
+          </div>
+        </div>
+        <div class="override-grid">
+          <div>
+            <label class="field-label">New Rate ($/hr)</label>
+            <input type="number" id="overrideNewRate" placeholder="e.g. 60.00" step="0.25" min="0">
+          </div>
+          <div>
+            <label class="field-label">Effective Date</label>
+            <input type="date" id="overrideEffectiveDate">
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Override Reason / Notes</label>
+          <textarea id="overrideComment" placeholder="Explain the reason for the override..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="card">
+    <div class="card-header"><h2>Feedback &amp; Development Notes</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div>
+          <label class="field-label">Key Strengths</label>
+          <textarea id="strengthsFeedback" placeholder="What is this hygienist doing exceptionally well?"></textarea>
+        </div>
+        <div>
+          <label class="field-label">Areas for Improvement</label>
+          <textarea id="areasFeedback" placeholder="Where does focused growth need to happen?"></textarea>
+        </div>
+        <div style="grid-column:1/-1">
+          <label class="field-label">Goals &amp; Development Plan</label>
+          <textarea id="goalsFeedback" placeholder="Specific goals, timelines, and action items for the next review period..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signatures & Submit -->
+  <div class="card" id="submitCard">
+    <div class="card-header"><h2>Signatures &amp; Submission</h2></div>
+    <div class="card-body">
+      <div class="sig-grid">
+        <div>
+          <label class="field-label">Employee Signature</label>
+          <input type="text" id="employeeSig" placeholder="Type full name to sign">
+        </div>
+        <div>
+          <label class="field-label">Employee Date</label>
+          <input type="date" id="employeeDate">
+        </div>
+        <div>
+          <label class="field-label">Reviewer Signature <span style="color:#e87770">*</span></label>
+          <input type="text" id="reviewerSig" placeholder="Reviewer — required to submit">
+        </div>
+      </div>
+      <div class="submit-row">
+        <p class="submit-note">Submitting will send a copy to ClickUp and lock this form.</p>
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-footer">RDH Annual Review System &nbsp;·&nbsp; Smile Haus Dental</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Draft modal -->
+<div class="modal-ov" id="draftModal">
+  <div class="modal-box">
+    <div class="modal-title">Resume saved draft?</div>
+    <div class="modal-body" id="draftModalBody">A draft was found. Load it to continue where you left off?</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="dismissDraft()">Start fresh</button>
+      <button class="btn-confirm" onclick="loadDraft()">Load draft</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset confirm modal -->
+<div class="modal-ov" id="resetModal">
+  <div class="modal-box">
+    <div class="modal-title">Reset form?</div>
+    <div class="modal-body">All entered data will be cleared. This cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('resetModal').classList.remove('open')">Cancel</button>
+      <button class="btn-confirm" style="background:#c0392b" onclick="resetForm();document.getElementById('resetModal').classList.remove('open')">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const WORKER_BASE  = 'https://sh-da-review-worker.smilehaus.workers.dev';
+const SAVE_KEY     = 'sh_rdh_review_data';
+const DRAFT_ID_KEY = 'sh_rdh_draft_id';
+const TEMPLATE_KEY = 'sh_rdh_review_template';
+const SKILLS_KEY   = 'sh_rdh_review_skills';
+
+// ─── Tiers (T1-T4) ───────────────────────────────────────────────────────────
+const TIERS_STANDARD = {
+  T1: { floor:50, ceiling:55, x:0.020, next:'T2', label:'Dental Hygienist I',       rate:'$50–55/hr' },
+  T2: { floor:55, ceiling:58, x:0.025, next:'T3', label:'Dental Hygienist II',      rate:'$55–58/hr' },
+  T3: { floor:58, ceiling:62, x:0.030, next:'T4', label:'Senior Hygienist',         rate:'$58–62/hr' },
+  T4: { floor:62, ceiling:65, x:0.035, next:null,  label:'Lead / Expert Hygienist', rate:'$62–65/hr' },
+};
+const tierKeys = ['T1','T2','T3','T4'];
+
+// ─── KPIs ─────────────────────────────────────────────────────────────────────
+const KPIS = [
+  { id:'kpi1', name:'Hygiene Production Rate',            sub:'% of scheduled hygiene production collected daily (Oryx KPI Dashboard)',  target:'≥ 90%' },
+  { id:'kpi2', name:'Appointment Pre-Schedule Rate',      sub:'% of patients pre-scheduled for next recall at checkout',                 target:'≥ 90%' },
+  { id:'kpi3', name:'New Patient Perio Assessment Rate',  sub:'% of new patients receiving a documented perio assessment',               target:'100%' },
+  { id:'kpi4', name:'Perio Maintenance Compliance',       sub:'% of active perio tx patients returning on prescribed recall interval',   target:'≥ 85%' },
+  { id:'kpi5', name:'Radiograph Compliance',              sub:'% of patients with radiographs up to date per ADA guidelines',           target:'≥ 95%' },
+  { id:'kpi6', name:'Appointment On-Time Rate',           sub:'% of hygiene appointments starting within 5 minutes of scheduled time',  target:'≥ 85%' },
+  { id:'kpi7', name:'Medical History Update Rate',        sub:'% of patient medical histories reviewed and updated at each visit',      target:'100%' },
+  { id:'kpi8', name:'Patient Retention Rate',             sub:'% of hygiene patients who return within 18 months of prior appointment', target:'≥ 80%' },
+];
+
+// ─── Performance Sections ─────────────────────────────────────────────────────
+const PERF_SECTIONS = [
+  { id:'secA', title:'A — Clinical Excellence', color:'#4361ee', criteria:[
+    { id:'a1', text:'Perio Diagnosis & Treatment Planning',   desc:'Accuracy of probing, staging, grading, and perio tx recommendations' },
+    { id:'a2', text:'Clinical Technique & Thoroughness',     desc:'Quality of scaling, root planing, and instrument selection' },
+    { id:'a3', text:'Radiograph Accuracy & Interpretation',  desc:'Correct exposure, angulation, diagnostic quality, and written findings' },
+    { id:'a4', text:'Infection Control & OSHA Compliance',   desc:'PPE use, sterilization protocol, and OSHA standard adherence' },
+    { id:'a5', text:'Chart Documentation & Accuracy',        desc:'Completeness, timeliness, and clinical accuracy of chart notes' },
+  ]},
+  { id:'secB', title:'B — Patient Experience', color:'#06d6a0', criteria:[
+    { id:'b1', text:'Patient Communication & Education',     desc:'Clear explanation of findings, homecare instructions, and empathy' },
+    { id:'b2', text:'Recall Motivation & Compliance',        desc:'Actively encourages patients to return on schedule; handles resistant patients' },
+    { id:'b3', text:'Complaint Handling & Empathy',          desc:'Handles sensitive conversations professionally and de-escalates effectively' },
+    { id:'b4', text:'New Patient Experience',                desc:'Thoroughness and warmth with first-time patients; builds trust from visit one' },
+    { id:'b5', text:'Patient Retention Initiative',          desc:'Proactively re-activates overdue patients and supports recare outreach' },
+  ]},
+  { id:'secC', title:'C — Team & Leadership', color:'#7209b7', criteria:[
+    { id:'c1', text:'Daily Huddle Participation',            desc:'Arrives prepared, contributes relevant clinical intel, flags scheduling risks' },
+    { id:'c2', text:'Cross-Team Collaboration',              desc:'Supports DAs, front desk, and providers with open communication' },
+    { id:'c3', text:'SOP & Protocol Adherence',              desc:'Consistently follows Smile Haus SOPs without reminders' },
+    { id:'c4', text:'Continuing Education & Skill Growth',   desc:'Pursues CE, stays current on clinical evidence, applies new knowledge' },
+    { id:'c5', text:'Professionalism & Accountability',      desc:'Punctual, reliable, receptive to feedback, and models expected behavior' },
+  ]},
+];
+
+// ─── Tier Skills ──────────────────────────────────────────────────────────────
+const TIER_SKILLS = {
+  T1: [
+    'Demonstrate safe, thorough scaling and root planing technique',
+    'Complete adult perio assessment with accurate probing on every new patient',
+    'Update medical histories and confirm medications at every appointment',
+    'Achieve radiograph compliance with correct angulation and exposure',
+    'Pre-schedule patients for next recall appointment at each visit',
+    'Follow OSHA and infection control protocols without reminders',
+  ],
+  T2: [
+    'Achieve hygiene production rate ≥ 90% consistently',
+    'Stage and grade perio accurately and document treatment rationale',
+    'Manage perio maintenance patients independently and track compliance',
+    'Achieve appointment pre-schedule rate ≥ 90%',
+    'Conduct patient education that improves homecare outcomes',
+    'Maintain complete and timely chart documentation daily',
+  ],
+  T3: [
+    'Achieve all 8 KPI targets consistently',
+    'Present co-diagnosis observations to referring doctors with confidence',
+    'Support clinical onboarding of new hygienists or assistants',
+    'Identify and proactively re-activate overdue hygiene patients',
+    'Participate in CE or study club and share learnings with the team',
+    'Handle complex perio cases and resistant patients independently',
+  ],
+  T4: [
+    'All T3 skills performed at a mastery level independently',
+    'Mentor new hygienists on clinical technique and perio diagnosis',
+    'Cover hygiene schedules at other Smile Haus offices when needed',
+    'Lead clinical quality initiatives (e.g., probe accuracy, CE compliance)',
+    'Operate fully autonomously — no coaching needed for any standard case',
+  ],
+};
+
+// ─── Module-level state ───────────────────────────────────────────────────────
+let highestPromoTier = null;
+let skillState = {};
+let draftPending = null;
+let submitted = false;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function getBand(score) {
+  if (score >= 100) return { label:'Outstanding',         cls:'band-outstanding' };
+  if (score >= 85)  return { label:'Exceeds Expectations', cls:'band-exceeds' };
+  if (score >= 70)  return { label:'Meets Expectations',   cls:'band-meets' };
+  if (score >= 55)  return { label:'Coaching Plan Required', cls:'band-coaching' };
+  return              { label:'Performance Improvement Plan', cls:'band-pip' };
+}
+
+function rateToTier(r) {
+  const rate = parseFloat(r);
+  if (isNaN(rate)) return null;
+  for (const k of tierKeys) {
+    const t = TIERS_STANDARD[k];
+    if (rate >= t.floor && rate <= t.ceiling) return k;
+  }
+  return null;
+}
+
+function onRateChange() {
+  const tier = rateToTier(document.getElementById('currentRate').value);
+  if (tier) document.getElementById('currentTier').value = tier;
+  recalc();
+}
+
+function toggleOverride() {
+  const fields = document.getElementById('overrideFields');
+  fields.classList.toggle('vis', document.getElementById('overrideCheck').checked);
+}
+
+// ─── Render KPIs ──────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const tbody = document.getElementById('kpiBody');
+  tbody.innerHTML = '';
+  KPIS.forEach(k => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="kpi-name">${k.name}</div><div class="kpi-sub">${k.sub}</div></td>
+      <td style="text-align:center;white-space:nowrap;font-size:12px;color:#877765">${k.target}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <div class="score-btns" data-item="${k.id}">
+          ${[0,1,2,3,4,5].map(s=>`<button class="score-btn" data-s="${s}">${s}</button>`).join('')}
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── Render Perf Sections ─────────────────────────────────────────────────────
+function renderPerf() {
+  const container = document.getElementById('perfBody');
+  container.innerHTML = '';
+  PERF_SECTIONS.forEach(sec => {
+    const header = document.createElement('div');
+    header.className = 'subsection-header';
+    header.style.borderLeft = `4px solid ${sec.color}`;
+    header.textContent = sec.title;
+    container.appendChild(header);
+
+    const table = document.createElement('table');
+    table.className = 'perf-table';
+    table.innerHTML = `<colgroup><col><col style="width:260px"></colgroup>`;
+    const tbody = document.createElement('tbody');
+
+    sec.criteria.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div class="kpi-name">${c.text}</div>
+          <div class="kpi-sub">${c.desc}</div>
+        </td>
+        <td style="text-align:right;white-space:nowrap">
+          <div class="score-btns" data-item="${c.id}">
+            ${[0,1,2,3,4,5].map(s=>`<button class="score-btn" data-s="${s}">${s}</button>`).join('')}
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Notes row
+    const notesRow = document.createElement('tr');
+    notesRow.innerHTML = `<td colspan="2" class="notes-cell"><label class="field-label" style="margin-bottom:6px">Section Notes</label><textarea id="notes${sec.id}" placeholder="Optional notes for this section..." style="min-height:52px"></textarea></td>`;
+    tbody.appendChild(notesRow);
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+  });
+}
+
+// ─── Recalc ──────────────────────────────────────────────────────────────────
+function recalc() {
+  highestPromoTier = null;
+
+  let p1 = 0, p1Max = 0, p2 = 0, p2Max = 0;
+
+  document.querySelectorAll('#kpiBody .score-btn.active').forEach(b => p1 += +b.dataset.s);
+  document.querySelectorAll('#kpiBody .score-btns').forEach(() => p1Max += 5);
+  if (p1Max === 0) p1Max = 40;
+
+  document.querySelectorAll('#perfBody .score-btn.active').forEach(b => p2 += +b.dataset.s);
+  let perfCount = 0;
+  PERF_SECTIONS.forEach(s => { perfCount += s.criteria.length; });
+  p2Max = perfCount * 5;
+  if (p2Max === 0) p2Max = 75;
+
+  const total    = p1 + p2;
+  const totalMax = p1Max + p2Max;
+
+  document.getElementById('sumP1').textContent    = p1;
+  document.getElementById('sumP2').textContent    = p2;
+  document.getElementById('sumTotal').textContent  = total;
+  document.getElementById('sumMax').textContent    = totalMax;
+
+  const band = getBand(total);
+  document.getElementById('bandName').textContent = band.label;
+  document.getElementById('bandName').className   = `band-name ${band.cls}`;
+
+  // Gate checks
+  // Gate A: kpi1 (production) + kpi2 (recall) both scored ≥ 3
+  const kpi1Score = +((document.querySelector('.score-btns[data-item="kpi1"] .score-btn.active') || {}).dataset?.s ?? -1);
+  const kpi2Score = +((document.querySelector('.score-btns[data-item="kpi2"] .score-btn.active') || {}).dataset?.s ?? -1);
+  const gateA = kpi1Score >= 3 && kpi2Score >= 3;
+
+  // Gate B: total score >= 85
+  const gateB = total >= 85;
+
+  ['gateAPill','gateBPill'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    const pass = i === 0 ? gateA : gateB;
+    el.classList.toggle('pass', pass);
+  });
+
+  const gateABox = document.getElementById('gateABox');
+  const gateBBox = document.getElementById('gateBBox');
+  if (gateABox) {
+    gateABox.classList.toggle('pass', gateA);
+    document.getElementById('gateAStatus').textContent = gateA ? '✓ Pass' : '✗ Fail';
+  }
+  if (gateBBox) {
+    gateBBox.classList.toggle('pass', gateB);
+    document.getElementById('gateBStatus').textContent = gateB ? '✓ Pass' : '✗ Fail';
+  }
+
+  // Raise calculation
+  const tierKey  = document.getElementById('currentTier').value;
+  const rate     = parseFloat(document.getElementById('currentRate').value);
+  if (tierKey && TIERS_STANDARD[tierKey] && !isNaN(rate) && total > 70) {
+    const tier    = TIERS_STANDARD[tierKey];
+    const pf      = (gateB && total >= 85) ? 1.5 : 1.0;
+    const rawRaise = (total - 70) * tier.x * pf;
+    const cappedRaise = Math.min(rawRaise, tier.ceiling - rate);
+    const raise    = Math.max(0, Math.round(cappedRaise * 4) / 4);
+    const newRate  = rate + raise;
+    const pfTag    = pf === 1.5 ? ' (×1.5 Gate B)' : '';
+
+    document.getElementById('raisePreview').textContent = `+$${raise.toFixed(2)}/hr${pfTag}`;
+    document.getElementById('newRateLine').textContent  = `New rate: $${newRate.toFixed(2)}/hr`;
+
+    // Track highest promo tier reachable with new rate
+    for (const k of tierKeys) {
+      const t = TIERS_STANDARD[k];
+      if (newRate >= t.floor) highestPromoTier = k;
+    }
+  } else {
+    document.getElementById('raisePreview').textContent = '$—';
+    document.getElementById('newRateLine').textContent  = 'Enter tier & rate to calculate raise';
+  }
+}
+
+// ─── Score button clicks ──────────────────────────────────────────────────────
+function onScoreClick(e) {
+  const btn = e.target.closest('.score-btn');
+  if (!btn || submitted) return;
+  const group = btn.closest('.score-btns');
+  group.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  recalc();
+  autoSave();
+}
+
+// ─── Tier accordion ───────────────────────────────────────────────────────────
+function renderTierAccordion() {
+  const container = document.getElementById('tierAccordion');
+  container.innerHTML = '';
+  for (const k of tierKeys) {
+    const tier   = TIERS_STANDARD[k];
+    const skills = getCustomSkills(k);
+    const block  = document.createElement('div');
+    block.className = 'tier-block';
+    block.id = `tier-${k}`;
+
+    const skillsHTML = skills.map((s, i) => {
+      const chk = skillState[k] && skillState[k][i] ? 'checked' : '';
+      return `<li class="skill-item">
+        <input type="checkbox" class="skill-cb" data-tier="${k}" data-idx="${i}" ${chk} onchange="onSkillCheck(this)">
+        <span class="skill-text">${s}</span>
+        <button class="del-btn" onclick="deleteSkill('${k}',${i})">✕</button>
+      </li>`;
+    }).join('');
+
+    block.innerHTML = `
+      <div class="tier-block-header" onclick="toggleTier('${k}')">
+        <div class="tier-info">
+          <span class="tier-badge">${k}</span>
+          <span class="tier-label">${tier.label}</span>
+          <span class="tier-rate">${tier.rate}</span>
+        </div>
+        <span class="tier-arrow">▼</span>
+      </div>
+      <div class="tier-block-body">
+        <ul class="skill-list" id="skillList-${k}">${skillsHTML}</ul>
+        <div class="add-skill-row">
+          <input class="add-skill-input" id="newSkill-${k}" placeholder="Add a skill..." onkeydown="if(event.key==='Enter')addSkill('${k}')">
+          <button class="add-skill-btn" onclick="addSkill('${k}')">Add</button>
+        </div>
+        <div class="template-actions">
+          <button class="tmpl-btn" onclick="saveTemplate('${k}')">Save as template</button>
+          <button class="tmpl-btn" onclick="restoreTemplate('${k}')">Restore defaults</button>
+        </div>
+      </div>`;
+    container.appendChild(block);
+  }
+}
+
+function toggleTier(k) {
+  document.getElementById(`tier-${k}`).classList.toggle('open');
+}
+
+function getCustomSkills(k) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+    if (saved[k]) return saved[k];
+    const tmpl = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '{}');
+    if (tmpl[k]) return tmpl[k];
+  } catch(e) {}
+  return [...TIER_SKILLS[k]];
+}
+
+function saveCustomSkills(k, arr) {
+  const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+  saved[k] = arr;
+  localStorage.setItem(SKILLS_KEY, JSON.stringify(saved));
+}
+
+function addSkill(k) {
+  const inp  = document.getElementById(`newSkill-${k}`);
+  const text = inp.value.trim();
+  if (!text) return;
+  const skills = getCustomSkills(k);
+  skills.push(text);
+  saveCustomSkills(k, skills);
+  inp.value = '';
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+}
+
+function deleteSkill(k, idx) {
+  const skills = getCustomSkills(k);
+  skills.splice(idx, 1);
+  saveCustomSkills(k, skills);
+  if (!skillState[k]) skillState[k] = {};
+  const ns = {};
+  Object.keys(skillState[k]).forEach(i => {
+    const ni = parseInt(i);
+    if (ni < idx)  ns[ni]     = skillState[k][ni];
+    else if (ni > idx) ns[ni-1] = skillState[k][ni];
+  });
+  skillState[k] = ns;
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+}
+
+function onSkillCheck(cb) {
+  const k   = cb.dataset.tier;
+  const idx = parseInt(cb.dataset.idx);
+  if (!skillState[k]) skillState[k] = {};
+  skillState[k][idx] = cb.checked;
+  autoSave();
+}
+
+function saveTemplate(k) {
+  const tmpl = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '{}');
+  tmpl[k] = getCustomSkills(k);
+  localStorage.setItem(TEMPLATE_KEY, JSON.stringify(tmpl));
+  showToast(`${k} template saved`);
+}
+
+function restoreTemplate(k) {
+  const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+  delete saved[k];
+  localStorage.setItem(SKILLS_KEY, JSON.stringify(saved));
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+  showToast(`${k} restored to defaults`);
+}
+
+// ─── Form state ───────────────────────────────────────────────────────────────
+function getFormState() {
+  const scores = {};
+  document.querySelectorAll('.score-btn.active').forEach(b => {
+    const g = b.closest('.score-btns');
+    scores[g.dataset.item] = +b.dataset.s;
+  });
+  const sectionNotes = {};
+  PERF_SECTIONS.forEach(s => {
+    const el = document.getElementById(`notes${s.id}`);
+    if (el) sectionNotes[s.id] = el.value;
+  });
+  const dynamicSkills = {};
+  tierKeys.forEach(k => { dynamicSkills[k] = getCustomSkills(k); });
+
+  return {
+    hygName:              document.getElementById('hygName').value,
+    homeOffice:           document.getElementById('homeOffice').value,
+    currentRate:          document.getElementById('currentRate').value,
+    currentTier:          document.getElementById('currentTier').value,
+    hireDate:             document.getElementById('hireDate').value,
+    reviewDate:           document.getElementById('reviewDate').value,
+    reviewerName:         document.getElementById('reviewerName').value,
+    reviewPeriod:         document.getElementById('reviewPeriod').value,
+    strengthsFeedback:    document.getElementById('strengthsFeedback').value,
+    areasFeedback:        document.getElementById('areasFeedback').value,
+    goalsFeedback:        document.getElementById('goalsFeedback').value,
+    employeeSig:          document.getElementById('employeeSig').value,
+    employeeDate:         document.getElementById('employeeDate').value,
+    reviewerSig:          document.getElementById('reviewerSig').value,
+    overrideCheck:        document.getElementById('overrideCheck').checked,
+    overrideNewRate:      document.getElementById('overrideNewRate').value,
+    overrideEffectiveDate: document.getElementById('overrideEffectiveDate').value,
+    overrideComment:      document.getElementById('overrideComment').value,
+    scores,
+    sectionNotes,
+    skillState,
+    dynamicSkills,
+  };
+}
+
+function restoreStateObj(state) {
+  if (!state) return;
+  const textFields = ['hygName','homeOffice','currentRate','currentTier','hireDate','reviewDate','reviewerName','reviewPeriod',
+                      'strengthsFeedback','areasFeedback','goalsFeedback','employeeSig','employeeDate','reviewerSig',
+                      'overrideNewRate','overrideEffectiveDate','overrideComment'];
+  textFields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el && state[f] !== undefined) el.value = state[f];
+  });
+  if (state.overrideCheck) {
+    document.getElementById('overrideCheck').checked = true;
+    toggleOverride();
+  }
+  if (state.skillState) skillState = state.skillState;
+  if (state.dynamicSkills) {
+    const curr = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+    tierKeys.forEach(k => { if (state.dynamicSkills[k]) curr[k] = state.dynamicSkills[k]; });
+    localStorage.setItem(SKILLS_KEY, JSON.stringify(curr));
+  }
+  renderTierAccordion();
+  if (state.sectionNotes) {
+    PERF_SECTIONS.forEach(s => {
+      const el = document.getElementById(`notes${s.id}`);
+      if (el && state.sectionNotes[s.id] !== undefined) el.value = state.sectionNotes[s.id];
+    });
+  }
+  if (state.scores) {
+    Object.entries(state.scores).forEach(([item, score]) => {
+      const g = document.querySelector(`.score-btns[data-item="${item}"]`);
+      if (!g) return;
+      g.querySelectorAll('.score-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === score));
+    });
+  }
+  recalc();
+}
+
+// ─── Auto-save ────────────────────────────────────────────────────────────────
+function autoSave() {
+  if (submitted) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(getFormState())); } catch(e) {}
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+let authJwt = null;
+function getJwt() {
+  if (authJwt) return authJwt;
+  const p = new URLSearchParams(window.location.search);
+  authJwt = p.get('auth') || localStorage.getItem('sh_review_auth');
+  if (authJwt) localStorage.setItem('sh_review_auth', authJwt);
+  return authJwt;
+}
+
+// ─── Draft (server) ───────────────────────────────────────────────────────────
+async function saveDraft() {
+  const jwt = getJwt();
+  if (!jwt) { showToast('Not authenticated — draft not saved', 'err'); return; }
+  autoSave();
+  const state = getFormState();
+  const payload = { form_type:'rdh', employee_name: state.hygName || 'Unknown RDH', office: state.homeOffice, state };
+  try {
+    const draftId = localStorage.getItem(DRAFT_ID_KEY);
+    const url = draftId ? `${WORKER_BASE}/draft/${draftId}` : `${WORKER_BASE}/draft`;
+    const res = await fetch(url, {
+      method: draftId ? 'PUT' : 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${jwt}` },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    if (data.id) localStorage.setItem(DRAFT_ID_KEY, data.id);
+    showToast('Draft saved ✓');
+  } catch(e) {
+    showToast('Draft save failed: ' + e.message, 'err');
+  }
+}
+
+async function loadDraftFromUrl() {
+  const p = new URLSearchParams(window.location.search);
+  const urlDraftId = p.get('draft');
+  if (!urlDraftId) return;
+  const jwt = getJwt();
+  if (!jwt) return;
+  try {
+    const res = await fetch(`${WORKER_BASE}/draft/${urlDraftId}`, { headers: { 'Authorization':`Bearer ${jwt}` } });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.state) {
+      draftPending = data.state;
+      document.getElementById('draftModalBody').textContent = `Draft for "${data.employee_name || 'RDH'}" found. Load it to continue?`;
+      document.getElementById('draftModal').classList.add('open');
+      localStorage.setItem(DRAFT_ID_KEY, urlDraftId);
+    }
+  } catch(e) {}
+}
+
+function loadDraft() {
+  if (draftPending) restoreStateObj(draftPending);
+  draftPending = null;
+  document.getElementById('draftModal').classList.remove('open');
+  showToast('Draft loaded ✓');
+}
+
+function dismissDraft() {
+  draftPending = null;
+  document.getElementById('draftModal').classList.remove('open');
+}
+
+// ─── Build summary ────────────────────────────────────────────────────────────
+function buildSummary() {
+  const s    = getFormState();
+  let p1 = 0, p2 = 0;
+  KPIS.forEach(k => { if (s.scores[k.id] !== undefined) p1 += s.scores[k.id]; });
+  PERF_SECTIONS.forEach(sec => { sec.criteria.forEach(c => { if (s.scores[c.id] !== undefined) p2 += s.scores[c.id]; }); });
+  const total    = p1 + p2;
+  const p1Max    = KPIS.length * 5;
+  const p2Max    = PERF_SECTIONS.reduce((acc, sec) => acc + sec.criteria.length * 5, 0);
+  const totalMax = p1Max + p2Max;
+  const band     = getBand(total).label;
+
+  const kpiLines = KPIS.map(k => `  • ${k.name}: ${s.scores[k.id] ?? '—'}/5`).join('\n');
+  const perfLines = PERF_SECTIONS.map(sec =>
+    `  ${sec.title}\n` + sec.criteria.map(c => `    · ${c.text}: ${s.scores[c.id] ?? '—'}/5`).join('\n')
+  ).join('\n');
+
+  let overrideTxt = '';
+  if (s.overrideCheck && s.overrideNewRate) {
+    overrideTxt = `\n⚡ Override Rate: $${s.overrideNewRate}/hr (effective ${s.overrideEffectiveDate || 'TBD'})`;
+    if (s.overrideComment) overrideTxt += `\n   Reason: ${s.overrideComment}`;
+  }
+
+  return `RDH Annual Review — ${s.hygName} — ${s.homeOffice}
+
+HYGIENIST: ${s.hygName}
+OFFICE: ${s.homeOffice}
+CURRENT RATE: $${s.currentRate}/hr  TIER: ${s.currentTier}
+HIRE DATE: ${s.hireDate}  REVIEW DATE: ${s.reviewDate}
+REVIEWER: ${s.reviewerName}  PERIOD: ${s.reviewPeriod}
+
+━━ SCORES ━━
+Part 1 – KPI Performance: ${p1}/${p1Max}
+${kpiLines}
+
+Part 2 – Performance Evaluation: ${p2}/${p2Max}
+${perfLines}
+
+TOTAL: ${total}/${totalMax} — ${band}
+${overrideTxt}
+
+━━ FEEDBACK ━━
+Strengths:
+${s.strengthsFeedback || '—'}
+
+Areas for Improvement:
+${s.areasFeedback || '—'}
+
+Goals:
+${s.goalsFeedback || '—'}
+
+━━ SIGNATURES ━━
+Employee: ${s.employeeSig || '—'}  (${s.employeeDate || '—'})
+Reviewer: ${s.reviewerSig || '—'}`;
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+async function handleSubmit() {
+  const jwt = getJwt();
+  if (!jwt) { showToast('Not authenticated — cannot submit', 'err'); return; }
+  const sig  = document.getElementById('reviewerSig').value.trim();
+  if (!sig)  { showToast('Reviewer signature is required', 'err'); return; }
+  const hygName = document.getElementById('hygName').value.trim();
+  if (!hygName) { showToast('Hygienist name is required', 'err'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const summary  = buildSummary();
+    const draftId  = localStorage.getItem(DRAFT_ID_KEY);
+    const payload = {
+      form_type: 'rdh',
+      da_name:   hygName,
+      office:    document.getElementById('homeOffice').value,
+      summary,
+      override: {
+        active:        document.getElementById('overrideCheck').checked,
+        newRate:       document.getElementById('overrideNewRate').value,
+        effectiveDate: document.getElementById('overrideEffectiveDate').value,
+        comment:       document.getElementById('overrideComment').value,
+      },
+      draft_id: draftId || null,
+      state:    getFormState(),
+    };
+    const res = await fetch(`${WORKER_BASE}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${jwt}` },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    submitted = true;
+    showToast('Review submitted to ClickUp ✓');
+    localStorage.removeItem(DRAFT_ID_KEY);
+    btn.textContent = 'Submitted ✓';
+    document.querySelectorAll('.score-btn, input, select, textarea').forEach(el => { el.disabled = true; });
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Submit Review';
+    showToast('Submission failed: ' + e.message, 'err');
+  }
+}
+
+// ─── PDF ──────────────────────────────────────────────────────────────────────
+async function generatePDF() {
+  const main = document.querySelector('.main');
+  const openBlocks = [];
+  document.querySelectorAll('.tier-block').forEach(b => {
+    if (!b.classList.contains('open')) { openBlocks.push(b); b.classList.add('open'); }
+  });
+  await new Promise(r => setTimeout(r, 120));
+  try {
+    const canvas = await html2canvas(main, { scale: 2, useCORS: true });
+    const link   = document.createElement('a');
+    const name   = document.getElementById('hygName').value || 'RDH';
+    const date   = document.getElementById('reviewDate').value || new Date().toISOString().slice(0,10);
+    link.href     = canvas.toDataURL('image/png');
+    link.download = `RDH_Annual_Review_${name.replace(/\s+/g,'_')}_${date}.png`;
+    link.click();
+  } catch(e) {
+    showToast('PDF generation failed: ' + e.message, 'err');
+  }
+  openBlocks.forEach(b => b.classList.remove('open'));
+}
+
+// ─── Reset ────────────────────────────────────────────────────────────────────
+function confirmReset() {
+  document.getElementById('resetModal').classList.add('open');
+}
+
+function resetForm() {
+  document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+  skillState = {};
+  document.querySelectorAll('input[type="text"],input[type="number"],select,textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+  document.getElementById('overrideFields').classList.remove('vis');
+  const today = new Date().toISOString().slice(0,10);
+  ['reviewDate','employeeDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(DRAFT_ID_KEY);
+  renderTierAccordion();
+  recalc();
+  showToast('Form reset');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(function init() {
+  // Populate tier dropdown
+  const sel = document.getElementById('currentTier');
+  sel.innerHTML = '<option value="">Select tier...</option>';
+  tierKeys.forEach(k => {
+    const t   = TIERS_STANDARD[k];
+    const opt = document.createElement('option');
+    opt.value       = k;
+    opt.textContent = `${k} — ${t.label} (${t.rate})`;
+    sel.appendChild(opt);
+  });
+
+  // Today's date
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('reviewDate').value  = today;
+  document.getElementById('employeeDate').value = today;
+
+  // Render
+  renderKPIs();
+  renderPerf();
+  renderTierAccordion();
+
+  // Score clicks
+  document.addEventListener('click', onScoreClick);
+
+  // Auto-save on field changes
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('change', autoSave);
+    el.addEventListener('input',  autoSave);
+  });
+
+  // Load draft from URL, else restore localStorage
+  loadDraftFromUrl().then(() => {
+    if (!draftPending) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+        if (saved) restoreStateObj(saved);
+      } catch(e) {}
+    }
+  });
+
+  recalc();
+})();
+</script>
+</body>
+</html>
