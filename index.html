@@ -944,9 +944,11 @@ async function loadDraftFromUrl() {
     const res = await fetch(`${WORKER_BASE}/draft/${urlDraftId}`, { headers: { 'Authorization':`Bearer ${jwt}` } });
     if (!res.ok) return;
     const data = await res.json();
-    if (data.state) {
-      draftPending = data.state;
-      document.getElementById('draftModalBody').textContent = `Draft for "${data.employee_name || 'RDH'}" found. Load it to continue?`;
+    const stateData = data.draft?.state || data.state;
+    if (stateData) {
+      draftPending = stateData;
+      const empName = data.draft?.employee_name || data.employee_name || 'RDH';
+      document.getElementById('draftModalBody').textContent = `Draft for "${empName}" found. Load it to continue?`;
       document.getElementById('draftModal').classList.add('open');
       localStorage.setItem(DRAFT_ID_KEY, urlDraftId);
     }
@@ -1035,12 +1037,27 @@ async function handleSubmit() {
   btn.textContent = 'Submitting…';
 
   try {
-    const summary  = buildSummary();
-    const draftId  = localStorage.getItem(DRAFT_ID_KEY);
+    const summary    = buildSummary();
+    const draftId    = localStorage.getItem(DRAFT_ID_KEY);
+    const formState  = getFormState();
+    const office     = document.getElementById('homeOffice').value;
+    const reviewDate = formState.reviewDate || '';
+    const tier       = formState.currentTier || '';
+    const taskName   = `RDH Annual Review — ${hygName} — ${office} — ${reviewDate}`;
+    const taskBody   = JSON.stringify({ name: taskName, description: summary, priority: 2 });
     const payload = {
-      form_type: 'rdh',
-      da_name:   hygName,
-      office:    document.getElementById('homeOffice').value,
+      form_type:   'rdh',
+      task_name:   taskName,
+      task_body:   taskBody,
+      da_name:     hygName,
+      office,
+      tier,
+      review_date: reviewDate,
+      score:       document.getElementById('sumTotal').textContent || '—',
+      band:        document.getElementById('bandName').textContent || '—',
+      reviewer:    formState.reviewerName || '',
+      raise:       document.getElementById('raisePreview').textContent || '$—',
+      new_rate:    document.getElementById('newRateLine').textContent || '',
       summary,
       override: {
         active:        document.getElementById('overrideCheck').checked,
@@ -1048,8 +1065,8 @@ async function handleSubmit() {
         effectiveDate: document.getElementById('overrideEffectiveDate').value,
         comment:       document.getElementById('overrideComment').value,
       },
-      draft_id: draftId || null,
-      state:    getFormState(),
+      draft_id:   draftId || null,
+      form_state: JSON.stringify(formState),
     };
     const res = await fetch(`${WORKER_BASE}/submit`, {
       method: 'POST',
