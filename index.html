@@ -278,7 +278,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
   <div class="card">
     <div class="card-header">
       <h2>Part 1 — KPI Performance</h2>
-      <span class="pts">8 KPIs · max 40 pts</span>
+      <span class="pts">5 KPIs · max 25 pts</span>
     </div>
     <div class="card-body">
       <table class="kpi-table">
@@ -317,7 +317,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
       <div class="override-fields" id="overrideFields">
         <div class="gate-summary" id="gateSummary">
           <div class="gate-box" id="gateABox">
-            <span class="gate-label">Gate A · Production &amp; Recall</span>
+            <span class="gate-label">Gate A · Production &amp; Reappointment %</span>
             <span class="gate-status" id="gateAStatus">—</span>
           </div>
           <div class="gate-box" id="gateBBox">
@@ -438,14 +438,11 @@ const tierKeys = ['T1','T2','T3','T4'];
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
 const KPIS = [
-  { id:'kpi1', name:'Hygiene Production Rate',            sub:'% of scheduled hygiene production collected daily (Oryx KPI Dashboard)',  target:'≥ 90%' },
-  { id:'kpi2', name:'Appointment Pre-Schedule Rate',      sub:'% of patients pre-scheduled for next recall at checkout',                 target:'≥ 90%' },
-  { id:'kpi3', name:'New Patient Perio Assessment Rate',  sub:'% of new patients receiving a documented perio assessment',               target:'100%' },
-  { id:'kpi4', name:'Perio Maintenance Compliance',       sub:'% of active perio tx patients returning on prescribed recall interval',   target:'≥ 85%' },
-  { id:'kpi5', name:'Radiograph Compliance',              sub:'% of patients with radiographs up to date per ADA guidelines',           target:'≥ 95%' },
-  { id:'kpi6', name:'Appointment On-Time Rate',           sub:'% of hygiene appointments starting within 5 minutes of scheduled time',  target:'≥ 85%' },
-  { id:'kpi7', name:'Medical History Update Rate',        sub:'% of patient medical histories reviewed and updated at each visit',      target:'100%' },
-  { id:'kpi8', name:'Patient Retention Rate',             sub:'% of hygiene patients who return within 18 months of prior appointment', target:'≥ 80%' },
+  { id:'kpi1', name:'Production',               sub:'Gross or Net Production by the provider for the period selected',                                                                                                                                                      target:'3–5× hourly wage (3× FFS; 4–5× with ins. write-offs)' },
+  { id:'kpi2', name:'Production Per Visit',     sub:'Provider\'s Gross Production ÷ total Patient Visits for that provider (from patient ledger)',                                                                                                                          target:'Avg $152 or more' },
+  { id:'kpi3', name:'Reappointment %',          sub:'% of Hygiene Visits where the patient scheduled a subsequent hygiene appointment before leaving the office on the same day',                                                                                           target:'90% or more' },
+  { id:'kpi4', name:'Perio %',                  sub:'% of hygiene patients seen for perio (one or more perio codes completed that day: D4320, D4321, D4341, D4342, D4355, D4381, D4346, D6081, D4921, D4910)',                                                             target:'30%' },
+  { id:'kpi5', name:'Fluoride Acceptance %',    sub:'% of patients who had fluoride completed during their Hygiene Visit (codes D1206, D1208, D1209 placed on the ledger)',                                                                                                target:'Avg 31%' },
 ];
 
 // ─── Performance Sections ─────────────────────────────────────────────────────
@@ -639,10 +636,10 @@ function recalc() {
   document.getElementById('bandName').className   = `band-name ${band.cls}`;
 
   // Gate checks
-  // Gate A: kpi1 (production) + kpi2 (recall) both scored ≥ 3
+  // Gate A: kpi1 (production) + kpi3 (reappointment %) both scored ≥ 3
   const kpi1Score = +((document.querySelector('.score-btns[data-item="kpi1"] .score-btn.active') || {}).dataset?.s ?? -1);
-  const kpi2Score = +((document.querySelector('.score-btns[data-item="kpi2"] .score-btn.active') || {}).dataset?.s ?? -1);
-  const gateA = kpi1Score >= 3 && kpi2Score >= 3;
+  const kpi3Score = +((document.querySelector('.score-btns[data-item="kpi3"] .score-btn.active') || {}).dataset?.s ?? -1);
+  const gateA = kpi1Score >= 3 && kpi3Score >= 3;
 
   // Gate B: total score >= 85
   const gateB = total >= 85;
