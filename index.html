@@ -889,7 +889,8 @@ function getFormState() {
     reviewPeriod:         document.getElementById('reviewPeriod').value,
     strengthsFeedback:    document.getElementById('strengthsFeedback').value,
     areasFeedback:        document.getElementById('areasFeedback').value,
-    goalsFeedback:        document.getElementById('goalsFeedback').value,
+    goalsFeedback:            document.getElementById('goalsFeedback').value,
+    employeeResponseFeedback: document.getElementById('employeeResponseFeedback')?.value || '',
     employeeSig:          document.getElementById('employeeSig').value,
     employeeDate:         document.getElementById('employeeDate').value,
     reviewerSig:          document.getElementById('reviewerSig').value,
@@ -907,7 +908,8 @@ function getFormState() {
 function restoreStateObj(state) {
   if (!state) return;
   const textFields = ['hygName','homeOffice','currentRate','currentTier','hireDate','reviewDate','reviewerName','reviewPeriod',
-                      'strengthsFeedback','areasFeedback','goalsFeedback','employeeSig','employeeDate','reviewerSig',
+                      'strengthsFeedback','areasFeedback','goalsFeedback','employeeResponseFeedback',
+                      'employeeSig','employeeDate','reviewerSig',
                       'overrideNewRate','overrideEffectiveDate','overrideComment'];
   textFields.forEach(f => {
     const el = document.getElementById(f);
@@ -1328,11 +1330,11 @@ function resetForm() {
   // Score clicks
   document.addEventListener('click', onScoreClick);
 
-  // Auto-save on field changes
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    el.addEventListener('change', autoSave);
-    el.addEventListener('input',  autoSave);
-  });
+  // Auto-save on any field change — document-level delegation covers dynamic elements too
+  document.addEventListener('input',  autoSave);
+  document.addEventListener('change', autoSave);
+  // Final safety save on page unload / refresh
+  window.addEventListener('beforeunload', autoSave);
 
   // Initialize auth from URL param; show nav buttons when authenticated
   getAuthJwt();
