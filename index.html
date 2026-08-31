@@ -981,27 +981,17 @@ async function saveDraft() {
   const jwt = getAuthJwt();
   if (!jwt) { showToast('Sign in from the dashboard to save drafts.', 'err'); return; }
 
-  const hygName = document.getElementById('hygName')?.value?.trim() || '';
-  const office  = document.getElementById('homeOffice')?.value || '';
-
   const _draftBtns = ['headerSaveDraftBtn'].map(id => document.getElementById(id)).filter(Boolean);
   _draftBtns.forEach(b => { b.disabled = true; b.textContent = '💾 Saving…'; });
   showDraftNote('');
 
-  const state = { _scores: {...scores}, _skillState: {...skillState} };
-  document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
-    if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') {
-      state[el.id] = el.value;
-    }
-  });
-  document.querySelectorAll('[data-editable][id]').forEach(el => { state[el.id] = el.textContent; });
-
   try {
+    const state = getFormState();
     const existingId = getDraftId();
     const payload = {
       form_type: 'rdh',
-      employee_name: hygName || 'Unnamed',
-      office: office || 'Unknown',
+      employee_name: state.hygName || 'Unnamed',
+      office: state.homeOffice || 'Unknown',
       state,
     };
     if (existingId) payload.id = existingId;
@@ -1058,33 +1048,7 @@ async function loadDraftFromUrl() {
     const draft = data.draft || data;
     if (draft.state) {
       setDraftId(draftId);
-      const state = draft.state;
-      Object.keys(state).filter(k => !k.startsWith('_')).forEach(id => {
-        const el = document.getElementById(id);
-        if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) el.value = state[id];
-      });
-      document.querySelectorAll('[data-editable][id]').forEach(el => {
-        if (state[el.id] !== undefined) el.textContent = state[el.id];
-      });
-      if (state._scores) {
-        Object.assign(scores, state._scores);
-        Object.keys(state._scores).forEach(id => {
-          const val = state._scores[id];
-          document.querySelectorAll(`[data-id="${id}"][data-val]`).forEach(btn => btn.classList.toggle('active', String(btn.dataset.val) === String(val)));
-        });
-      }
-      if (state._skillState) {
-        Object.assign(skillState, state._skillState);
-        Object.keys(state._skillState).forEach(k => {
-          const parts = k.split('_'); const tierKey = parts[0], idx = parts[1];
-          const sv = state._skillState[k];
-          const canBtn = document.getElementById(`skill_${tierKey}_${idx}_can`);
-          const cannotBtn = document.getElementById(`skill_${tierKey}_${idx}_cannot`);
-          if (canBtn) canBtn.className = 'skill-btn' + (sv === 'can' ? ' can-do' : '');
-          if (cannotBtn) cannotBtn.className = 'skill-btn' + (sv === 'cannot' ? ' cannot-do' : '');
-        });
-      }
-      if (document.getElementById('currentTier')?.value) onTierChange(true);
+      restoreStateObj(draft.state);
       recalc();
       showDraftNote('Draft loaded · ' + (draft.employee_name || ''));
       showToast('Draft resumed — ' + (draft.employee_name || 'draft') + ' · ' + (draft.office || ''), 'success');
