@@ -86,21 +86,17 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .score-btns { display: flex; gap: 5px; justify-content: flex-end; }
 .score-btn {
   width: 34px; height: 34px;
-  border-radius: var(--radius); border: 1.5px solid var(--sandstone);
+  border-radius: 50%; border: 1.5px solid var(--sandstone);
   background: var(--white); font-size: 13px; font-weight: 600;
   cursor: pointer; font-family: var(--font-body); transition: all .12s;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; color: var(--onyx);
 }
-.score-btn:hover:not(.active) { background: var(--alabaster); border-color: var(--taupe); }
-.score-btn[data-s="0"].active { background: #e0e0e0; border-color: #bbb; color: #555; }
-.score-btn[data-s="1"].active { background: #ef9a9a; border-color: #e57373; color: #fff; }
-.score-btn[data-s="2"].active { background: #ffcc80; border-color: #ffa726; color: #555; }
-.score-btn[data-s="3"].active { background: #fff176; border-color: #f9a825; color: #555; }
-.score-btn[data-s="4"].active { background: #a5d6a7; border-color: #66bb6a; color: #fff; }
-.score-btn[data-s="5"].active { background: #4ecdc4; border-color: #26a69a; color: #fff; }
+.score-btn:hover:not(.active) { border-color: var(--earth); color: var(--earth); }
+.score-btn.active { background: var(--earth); border-color: var(--earth); color: var(--white); }
 
 /* Perf section label */
-.subsection-header { background: var(--alabaster); border-bottom: 1px solid var(--sandstone); padding: 8px 14px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--earth); margin-top: 2px; }
+.subsection-header { background: var(--sandstone); padding: 8px 14px; font-size: 13px; font-weight: 600; color: var(--onyx); letter-spacing: 0.02em; border-top: 1px solid #c8bcae; }
+.subsection-header:first-child { border-top: none; }
 .perf-table td.notes-cell textarea { min-height: 52px; font-size: 13px; }
 
 /* Tier accordion */
@@ -173,6 +169,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 .btn-cancel  { background: var(--alabaster); border: none; border-radius: var(--radius); padding: 9px 18px; font-size: 14px; cursor: pointer; font-family: var(--font-body); }
 .btn-confirm { background: var(--onyx); color: var(--white); border: none; border-radius: var(--radius); padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font-body); }
+.edit-lock-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--white); border-radius: var(--radius); padding: 6px 14px; cursor: pointer; font-family: var(--font-body); font-size: 13px; white-space: nowrap; transition: all 0.15s; }
+.edit-lock-btn:hover { border-color: rgba(255,255,255,0.7); }
+.reset-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); border-radius: var(--radius); padding: 6px 14px; cursor: pointer; font-family: var(--font-body); font-size: 13px; white-space: nowrap; transition: all 0.15s; }
+.reset-btn:hover { border-color: #ff8a80; color: #ff8a80; }
+.settings-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--white); border-radius: var(--radius); padding: 6px 14px; cursor: pointer; font-family: var(--font-body); font-size: 13px; white-space: nowrap; }
+.settings-btn:hover { border-color: rgba(255,255,255,0.7); }
 </style>
 </head>
 <body>
@@ -181,9 +183,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
   <img src="logo-white.png" alt="Smile Haus" onerror="this.style.display='none'">
   <h1>Dental Hygienist Annual Review</h1>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <button class="hdr-btn green" onclick="saveDraft()">Save Draft</button>
-    <button class="hdr-btn" onclick="generatePDF()">Download PDF</button>
-    <button class="hdr-btn red" onclick="confirmReset()">Reset</button>
+    <a id="backToHomeBtn" href="https://sh-review-dashboard.pages.dev/" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">&#127968; Home</a>
+    <a id="backToRecordsBtn" href="https://sh-review-dashboard.pages.dev/records.html" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">&#8592; Records</a>
+    <button id="headerSaveDraftBtn" onclick="saveDraft()" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">&#128190; Save Draft</button>
+    <button id="editLockBtn" class="edit-lock-btn" onclick="toggleLock()">&#9998; Edit</button>
+    <button class="reset-btn" onclick="confirmReset()">&#8635; Reset</button>
+    <button class="settings-btn" onclick="openSettingsGated()">&#9881; Settings</button>
   </div>
 </header>
 
@@ -413,8 +418,41 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
     <div class="modal-title">Reset form?</div>
     <div class="modal-body">All entered data will be cleared. This cannot be undone.</div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="document.getElementById('resetModal').classList.remove('open')">Cancel</button>
-      <button class="btn-confirm" style="background:#c0392b" onclick="resetForm();document.getElementById('resetModal').classList.remove('open')">Reset</button>
+      <button class="btn-cancel" onclick="closeResetModal()">Cancel</button>
+      <button class="btn-confirm" style="background:#c0392b" onclick="resetForm()">Yes, Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-ov" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-box">
+    <h3 style="margin:0 0 12px;font-family:var(--font-head);font-weight:400;">&#9881; Settings</h3>
+    <p style="font-size:13px;color:var(--earth);margin:0 0 16px;">Worker URL is pre-configured. Only change if redirected by IT.</p>
+    <label class="field-label">Backend Worker URL</label>
+    <input type="text" id="cfg_worker_url" placeholder="https://sh-da-review-worker.smilehaus.workers.dev/submit" style="margin-bottom:8px;">
+    <div>
+      <button class="btn-cancel" id="cuTestBtn" onclick="testWorker()" style="font-size:12px;padding:5px 12px;">&#128337; Test Connection</button>
+      <div id="cuTestResult" style="font-size:12px;margin-top:6px;"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-confirm" onclick="saveSettings()">Save</button>
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN modal -->
+<div class="modal-ov" id="pinModal" onclick="if(event.target===this)closePinModal()">
+  <div class="modal-box" style="max-width:340px;">
+    <h3 style="margin:0 0 12px;font-family:var(--font-head);font-weight:400;">&#9998; Edit Form</h3>
+    <p style="font-size:13px;color:var(--earth);margin:0 0 16px;">Enter the PIN to unlock editing.</p>
+    <label class="field-label">PIN</label>
+    <input type="password" id="pinInput" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')submitPin()" autocomplete="off">
+    <div class="pin-error" id="pinError">Incorrect PIN. Try again.</div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-confirm" onclick="submitPin()">Unlock</button>
+      <button class="btn-cancel" onclick="closePinModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1105,12 +1143,70 @@ async function generatePDF() {
   openBlocks.forEach(b => b.classList.remove('open'));
 }
 
+// ─── Lock / Edit ──────────────────────────────────────────────────────────────
+const FORM_PIN = 'smilehaus2024';
+
+function toggleLock() {
+  showToast('Form is in edit mode — all fields and score buttons are active.', 'success');
+}
+
+function openPinModal(callback) {
+  document._pinCallback = callback;
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').style.display = 'none';
+  document.getElementById('pinModal').classList.add('open');
+  setTimeout(() => document.getElementById('pinInput').focus(), 80);
+}
+function closePinModal() { document.getElementById('pinModal').classList.remove('open'); }
+function submitPin() {
+  if (document.getElementById('pinInput').value === FORM_PIN) {
+    closePinModal();
+    if (typeof document._pinCallback === 'function') { document._pinCallback(); document._pinCallback = null; }
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('cfg_worker_url').value = localStorage.getItem('sh_worker_url') || (WORKER_BASE + '/submit');
+  document.getElementById('settingsModal').classList.add('open');
+}
+function saveSettings() {
+  localStorage.setItem('sh_worker_url', document.getElementById('cfg_worker_url').value.trim() || (WORKER_BASE + '/submit'));
+  closeSettings(); showToast('Settings saved.');
+}
+function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+function openSettingsGated() { openPinModal(() => openSettings()); }
+
+async function testWorker() {
+  const baseUrl = document.getElementById('cfg_worker_url').value.trim() || (WORKER_BASE + '/submit');
+  const healthUrl = baseUrl.replace(/\/submit$/, '/health');
+  const resultEl = document.getElementById('cuTestResult');
+  const btn = document.getElementById('cuTestBtn');
+  btn.disabled = true; btn.textContent = 'Testing…';
+  resultEl.textContent = '';
+  try {
+    const res = await fetch(healthUrl);
+    resultEl.style.color = res.ok ? '#2d6a3f' : '#c0392b';
+    resultEl.textContent = res.ok ? '✓ Worker is online.' : `✗ Status ${res.status}.`;
+  } catch(e) {
+    resultEl.style.color = '#c0392b';
+    resultEl.textContent = '✗ Network error — worker unreachable.';
+  }
+  btn.disabled = false; btn.textContent = '🕗 Test Connection';
+}
+
 // ─── Reset ────────────────────────────────────────────────────────────────────
 function confirmReset() {
   document.getElementById('resetModal').classList.add('open');
 }
+function closeResetModal() { document.getElementById('resetModal').classList.remove('open'); }
 
 function resetForm() {
+  closeResetModal();
   document.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
   skillState = {};
   document.querySelectorAll('input[type="text"],input[type="number"],select,textarea').forEach(el => el.value = '');
@@ -1159,6 +1255,14 @@ function resetForm() {
     el.addEventListener('change', autoSave);
     el.addEventListener('input',  autoSave);
   });
+
+  // Show nav buttons if authenticated from dashboard
+  getAuthJwt();
+  if (localStorage.getItem('sh_review_auth')) {
+    ['backToHomeBtn','backToRecordsBtn','headerSaveDraftBtn'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'inline-flex';
+    });
+  }
 
   // Load draft from URL, else restore localStorage
   loadDraftFromUrl().then(() => {
