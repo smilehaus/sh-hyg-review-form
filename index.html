@@ -99,59 +99,32 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .subsection-header:first-child { border-top: none; }
 .perf-table td.notes-cell textarea { min-height: 52px; font-size: 13px; }
 
-/* Tier competency checklist */
-.tier-accordion { border: 1px solid var(--sandstone); border-radius: var(--radius); overflow: hidden; }
-.tier-row { border-bottom: 1px solid var(--sandstone); }
-.tier-row:last-child { border-bottom: none; }
-.tier-header { display: flex; align-items: center; padding: 10px 16px; gap: 8px; width: 100%; box-sizing: border-box; }
-.tier-header.current-tier { background: #f0ede6; }
-.tier-header.next-tier { background: #f5f0eb; }
-.tier-header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; overflow: hidden; }
-.tier-header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: auto; }
-.tier-badge { font-size: 12px; font-weight: 700; background: var(--onyx); color: var(--white); padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
-.tier-badge.current { background: var(--earth); }
-.tier-badge.next { background: var(--taupe); }
-.tier-title { font-size: 13px; font-weight: 500; }
-.tier-rate { font-size: 12px; color: var(--taupe); flex-shrink: 0; }
-.tier-gate-status { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
-.gate-pass { background: #d4edda; color: #2d6a3f; }
-.gate-fail { background: #fde8e8; color: #8a3a3a; }
-.tier-expand-btn { background: none; border: 1px solid var(--sandstone); border-radius: 4px; width: 28px; height: 26px; cursor: pointer; font-size: 15px; color: var(--taupe); flex-shrink: 0; transition: transform 0.18s ease, border-color 0.15s, color 0.15s; display: flex; align-items: center; justify-content: center; }
-.tier-expand-btn:hover { border-color: var(--earth); color: var(--earth); }
-.tier-expand-btn.open { transform: rotate(90deg); }
-.pass-all-btn { font-family: var(--font-body); font-size: 11px; font-weight: 600; background: #d4edda; border: 1.5px solid #2d6a3f; color: #2d6a3f; border-radius: 4px; padding: 3px 9px; cursor: pointer; flex-shrink: 0; transition: all 0.12s; white-space: nowrap; }
-.pass-all-btn:hover, .pass-all-btn.all-passed { background: #2d6a3f; color: #fff; }
-.fail-all-btn { font-family: var(--font-body); font-size: 11px; font-weight: 600; background: #fde8e8; border: 1.5px solid #8a3a3a; color: #8a3a3a; border-radius: 4px; padding: 3px 9px; cursor: pointer; flex-shrink: 0; transition: all 0.12s; white-space: nowrap; }
-.fail-all-btn:hover, .fail-all-btn.all-failed { background: #8a3a3a; color: #fff; }
-.tier-body { display: none; border-top: 1px solid var(--sandstone); }
-.tier-body.open { display: block; }
-.skill-row { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #f0ece4; }
-.skill-row:last-child { border-bottom: none; }
-.skill-row:nth-child(even) { background: #fafaf8; }
-.skill-name { flex: 1; font-size: 13px; color: var(--onyx); line-height: 1.4; }
-.skill-btns { display: flex; gap: 4px; flex-shrink: 0; }
-.skill-btn { width: 32px; height: 28px; border: 1.5px solid var(--sandstone); background: var(--white); border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.12s; display: flex; align-items: center; justify-content: center; }
-.skill-btn:hover { border-color: var(--earth); }
-.skill-btn.can-do { background: #d4edda; border-color: #2d6a3f; color: #2d6a3f; }
-.skill-btn.cannot-do { background: #fde8e8; border-color: #c0392b; color: #c0392b; }
-.skill-delete-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--taupe); padding: 2px 4px; border-radius: 3px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s, color 0.15s; }
-.skill-row:hover .skill-delete-btn { opacity: 1; }
-.skill-delete-btn:hover { color: #c0392b; }
-.add-skill-btn { font-family: var(--font-body); font-size: 12px; color: var(--earth); background: none; border: 1px dashed var(--sandstone); border-radius: 4px; padding: 4px 12px; cursor: pointer; width: 100%; text-align: left; margin-top: 4px; transition: all 0.12s; }
-.add-skill-btn:hover { border-color: var(--earth); background: #faf8f4; }
-
-/* Gate summary (tier competency) */
-.gate-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-.gate-box { padding: 14px 16px; border-radius: var(--radius); border: 1.5px solid var(--sandstone); text-align: center; }
-.gate-box.pass { background: #d4edda; border-color: #2d6a3f; }
-.gate-box.fail { background: #fde8e8; border-color: #e74c3c; }
-.gate-box.incomplete { background: var(--alabaster); }
-.gate-box-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; color: var(--earth); }
-.gate-box-status { font-size: 16px; font-weight: 700; }
-.gate-box.pass .gate-box-status { color: #2d6a3f; }
-.gate-box.fail .gate-box-status { color: #c0392b; }
-.gate-box.incomplete .gate-box-status { color: var(--taupe); }
-.gate-box-sub { font-size: 11px; color: var(--taupe); margin-top: 3px; }
+/* Tier accordion */
+.tier-accordion { margin-bottom: 20px; }
+.tier-block { background: var(--white); border: 1px solid var(--sandstone); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.tier-block-header { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.tier-block-header:hover { background: var(--alabaster); }
+.tier-info { display: flex; align-items: center; gap: 12px; }
+.tier-badge { background: var(--onyx); color: var(--white); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; letter-spacing: .5px; }
+.tier-label { font-size: 14px; font-weight: 600; }
+.tier-rate  { font-size: 13px; color: var(--earth); }
+.tier-arrow { font-size: 12px; color: var(--taupe); transition: transform .2s; }
+.tier-block.open .tier-arrow { transform: rotate(180deg); }
+.tier-block-body { display: none; padding: 0 18px 18px; }
+.tier-block.open .tier-block-body { display: block; }
+.skill-list { list-style: none; }
+.skill-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--alabaster); font-size: 14px; }
+.skill-item:last-child { border-bottom: none; }
+.skill-cb { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--earth); flex-shrink: 0; }
+.skill-text { flex: 1; line-height: 1.4; }
+.del-btn { background: none; border: none; color: var(--sandstone); cursor: pointer; font-size: 12px; padding: 0 2px; }
+.del-btn:hover { color: #c0392b; }
+.add-skill-row { display: flex; gap: 8px; margin-top: 10px; }
+.add-skill-input { flex: 1; border: 1px solid var(--sandstone); border-radius: var(--radius); padding: 7px 10px; font-size: 13px; font-family: var(--font-body); }
+.add-skill-btn { background: var(--onyx); color: var(--white); border: none; border-radius: var(--radius); padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+.template-actions { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--sandstone); }
+.tmpl-btn { background: var(--alabaster); border: none; border-radius: var(--radius); padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: var(--font-body); color: var(--earth); }
+.tmpl-btn:hover { background: var(--sandstone); }
 
 /* Override */
 .override-card-body { padding: 20px; }
@@ -341,58 +314,8 @@ body.edit-mode [data-editable]:focus { outline: 2px solid var(--earth); backgrou
     <div class="card-body" id="perfBody"></div>
   </div>
 
-  <!-- Review Narrative -->
-  <div class="card">
-    <div class="card-header"><h2>Review Narrative</h2></div>
-    <div class="card-body">
-      <div class="info-grid">
-        <div>
-          <label class="field-label">Strengths</label>
-          <textarea id="strengthsFeedback" placeholder="What is this hygienist doing exceptionally well?"></textarea>
-        </div>
-        <div>
-          <label class="field-label">Growth Areas</label>
-          <textarea id="areasFeedback" placeholder="Where does focused growth need to happen?"></textarea>
-        </div>
-        <div style="grid-column:1/-1">
-          <label class="field-label">Goals for Next 12 Months</label>
-          <textarea id="goalsFeedback" placeholder="Specific goals, timelines, and action items for the next review period..."></textarea>
-        </div>
-        <div style="grid-column:1/-1">
-          <label class="field-label">Employee Response / Comments</label>
-          <textarea id="employeeResponseFeedback" placeholder="Employee's own comments or response to this review..."></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tier Competency Checklist -->
-  <div class="card">
-    <div class="card-header">
-      <h2>Tier Competency Checklist</h2>
-      <span class="pts">Gate A · Gate B</span>
-    </div>
-    <div class="card-body">
-      <p style="font-size:13px;color:var(--taupe);margin-bottom:14px;">
-        Mark each skill: <strong style="color:#2d6a3f">✓ Can do</strong> or <strong style="color:#c0392b">✗ Cannot do</strong>.
-        Leave blank if not yet evaluated. <strong>Gate A</strong> = all skills at current tier and below are ✓.
-        <strong>Gate B</strong> = all skills at next tier are also ✓ (required to promote).
-      </p>
-      <div class="tier-accordion" id="tierAccordion"></div>
-      <div class="gate-summary" id="gateSummary">
-        <div class="gate-box incomplete" id="gateABox">
-          <div class="gate-box-label">Gate A — Current Tier Mastery</div>
-          <div class="gate-box-status" id="gateAStatus">Select your tier above</div>
-          <div class="gate-box-sub" id="gateASub">Required for any raise</div>
-        </div>
-        <div class="gate-box incomplete" id="gateBBox">
-          <div class="gate-box-label">Gate B — Next Tier Mastery</div>
-          <div class="gate-box-status" id="gateBStatus">Select your tier above</div>
-          <div class="gate-box-sub" id="gateBSub">Required for promotion + score ≥ 85</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Tier accordion -->
+  <div class="tier-accordion" id="tierAccordion"></div>
 
   <!-- Override -->
   <div class="card">
@@ -426,6 +349,27 @@ body.edit-mode [data-editable]:focus { outline: 2px solid var(--earth); backgrou
         <div>
           <label class="field-label">Override Reason / Notes</label>
           <textarea id="overrideComment" placeholder="Explain the reason for the override..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="card">
+    <div class="card-header"><h2>Feedback &amp; Development Notes</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div>
+          <label class="field-label">Key Strengths</label>
+          <textarea id="strengthsFeedback" placeholder="What is this hygienist doing exceptionally well?"></textarea>
+        </div>
+        <div>
+          <label class="field-label">Areas for Improvement</label>
+          <textarea id="areasFeedback" placeholder="Where does focused growth need to happen?"></textarea>
+        </div>
+        <div style="grid-column:1/-1">
+          <label class="field-label">Goals &amp; Development Plan</label>
+          <textarea id="goalsFeedback" placeholder="Specific goals, timelines, and action items for the next review period..."></textarea>
         </div>
       </div>
     </div>
@@ -740,77 +684,34 @@ function recalc() {
   document.getElementById('bandName').textContent = band.label;
   document.getElementById('bandName').className   = `band-name ${band.cls}`;
 
-  // Gate A pill (KPI gate): kpi1 (production) + kpi3 (reappointment %) both scored ≥ 3
+  // Gate checks
+  // Gate A: kpi1 (production) + kpi3 (reappointment %) both scored ≥ 3
   const kpi1Score = +((document.querySelector('.score-btns[data-item="kpi1"] .score-btn.active') || {}).dataset?.s ?? -1);
   const kpi3Score = +((document.querySelector('.score-btns[data-item="kpi3"] .score-btn.active') || {}).dataset?.s ?? -1);
-  const kpiGateA = kpi1Score >= 3 && kpi3Score >= 3;
-  const kpiGateB = total >= 85;
+  const gateA = kpi1Score >= 3 && kpi3Score >= 3;
+
+  // Gate B: total score >= 85
+  const gateB = total >= 85;
+
   ['gateAPill','gateBPill'].forEach((id, i) => {
     const el = document.getElementById(id);
-    if (el) el.classList.toggle('pass', i === 0 ? kpiGateA : kpiGateB);
+    const pass = i === 0 ? gateA : gateB;
+    el.classList.toggle('pass', pass);
   });
 
-  // Tier Competency Gate A/B
-  const tierKey  = document.getElementById('currentTier').value;
-  const tier     = TIERS_STANDARD[tierKey];
-  tierKeys.forEach(k => {
-    const toggle   = document.getElementById(`tierToggle_${k}`);
-    const badge    = document.getElementById(`tierBadge_${k}`);
-    const statusEl = document.getElementById(`tierGateStatus_${k}`);
-    if (!toggle) return;
-    toggle.className = 'tier-header' + (k === tierKey ? ' current-tier' : tier && tier.next === k ? ' next-tier' : '');
-    badge.className  = 'tier-badge'  + (k === tierKey ? ' current'      : tier && tier.next === k ? ' next'      : '');
-    const gs = getTierGateStatus(k);
-    statusEl.className   = 'tier-gate-status ' + (gs === 'pass' ? 'gate-pass' : gs === 'fail' ? 'gate-fail' : '');
-    statusEl.textContent = gs === 'pass' ? '✓ Pass' : gs === 'fail' ? '✗ Not Yet Passed' : '';
-    const passBtn = document.getElementById(`passAllBtn_${k}`);
-    if (passBtn) passBtn.classList.toggle('all-passed', gs === 'pass');
-  });
-
-  let competencyGateA = false, competencyGateB = false;
-  highestPromoTier = null;
-  if (tier) {
-    const currentIdx = tierKeys.indexOf(tierKey);
-    competencyGateA = tierKeys.slice(0, currentIdx + 1).every(k => getTierGateStatus(k) === 'pass');
-    let promoIdx = currentIdx + 1;
-    while (promoIdx < tierKeys.length) {
-      if (getTierGateStatus(tierKeys[promoIdx]) === 'pass') { highestPromoTier = tierKeys[promoIdx]; promoIdx++; }
-      else break;
-    }
-    competencyGateB = highestPromoTier !== null;
+  const gateABox = document.getElementById('gateABox');
+  const gateBBox = document.getElementById('gateBBox');
+  if (gateABox) {
+    gateABox.classList.toggle('pass', gateA);
+    document.getElementById('gateAStatus').textContent = gateA ? '✓ Pass' : '✗ Fail';
   }
-
-  const gateABox    = document.getElementById('gateABox');
-  const gateBBox    = document.getElementById('gateBBox');
-  const gateAStatus = document.getElementById('gateAStatus');
-  const gateBStatus = document.getElementById('gateBStatus');
-  const gateASub    = document.getElementById('gateASub');
-  const gateBSub    = document.getElementById('gateBSub');
-  if (!tier) {
-    if (gateABox) { gateABox.className = 'gate-box incomplete'; gateAStatus.textContent = 'Select your tier above'; gateASub.textContent = 'Required for any raise'; }
-    if (gateBBox) { gateBBox.className = 'gate-box incomplete'; gateBStatus.textContent = 'Select your tier above'; gateBSub.textContent = 'Required for promotion + score ≥ 85'; }
-  } else {
-    if (gateABox) {
-      gateABox.className = 'gate-box ' + (competencyGateA ? 'pass' : 'fail');
-      gateAStatus.textContent = competencyGateA ? '✓ Passed' : '✗ Not Yet Passed';
-      gateASub.textContent = competencyGateA ? 'Raise eligible based on score' : `Complete all ${tierKey} (and below) skills`;
-    }
-    if (gateBBox) {
-      if (tier.next) {
-        gateBBox.className = 'gate-box ' + (competencyGateB ? 'pass' : 'fail');
-        gateBStatus.textContent = competencyGateB ? '✓ Passed' : '✗ Not Yet Passed';
-        gateBSub.textContent = competencyGateB
-          ? `Promotion to ${highestPromoTier} eligible (score ≥ 85)${highestPromoTier !== tier.next ? ' · Multi-tier advance' : ''}`
-          : `Complete all ${tier.next} skills to promote`;
-      } else {
-        gateBBox.className = 'gate-box incomplete';
-        gateBStatus.textContent = 'Top tier reached';
-        gateBSub.textContent = 'No further promotion tiers';
-      }
-    }
+  if (gateBBox) {
+    gateBBox.classList.toggle('pass', gateB);
+    document.getElementById('gateBStatus').textContent = gateB ? '✓ Pass' : '✗ Fail';
   }
 
   // Raise calculation
+  const tierKey  = document.getElementById('currentTier').value;
   const rate     = parseFloat(document.getElementById('currentRate').value);
   if (tierKey && TIERS_STANDARD[tierKey] && !isNaN(rate) && total > 70) {
     const tier    = TIERS_STANDARD[tierKey];
@@ -846,156 +747,120 @@ function onScoreClick(e) {
   autoSave();
 }
 
-// ─── Tier Competency Checklist ────────────────────────────────────────────────
+// ─── Tier accordion ───────────────────────────────────────────────────────────
 function renderTierAccordion() {
-  const accordion = document.getElementById('tierAccordion');
-  accordion.innerHTML = tierKeys.map(key => {
-    const tier = TIERS_STANDARD[key];
-    const skills = TIER_SKILLS[key];
-    return `
-    <div class="tier-row" id="tierRow_${key}">
-      <div class="tier-header" id="tierToggle_${key}">
-        <div class="tier-header-left">
-          <span class="tier-badge" id="tierBadge_${key}">${key}</span>
-          <span class="tier-title">${tier.label}</span>
+  const container = document.getElementById('tierAccordion');
+  container.innerHTML = '';
+  for (const k of tierKeys) {
+    const tier   = TIERS_STANDARD[k];
+    const skills = getCustomSkills(k);
+    const block  = document.createElement('div');
+    block.className = 'tier-block';
+    block.id = `tier-${k}`;
+
+    const skillsHTML = skills.map((s, i) => {
+      const chk = skillState[k] && skillState[k][i] ? 'checked' : '';
+      return `<li class="skill-item">
+        <input type="checkbox" class="skill-cb" data-tier="${k}" data-idx="${i}" ${chk} onchange="onSkillCheck(this)">
+        <span class="skill-text">${s}</span>
+        <button class="del-btn" onclick="deleteSkill('${k}',${i})">✕</button>
+      </li>`;
+    }).join('');
+
+    block.innerHTML = `
+      <div class="tier-block-header" onclick="toggleTier('${k}')">
+        <div class="tier-info">
+          <span class="tier-badge">${k}</span>
+          <span class="tier-label">${tier.label}</span>
           <span class="tier-rate">${tier.rate}</span>
-          <span class="tier-gate-status" id="tierGateStatus_${key}"></span>
         </div>
-        <div class="tier-header-right">
-          <button class="pass-all-btn" id="passAllBtn_${key}" onclick="passAllSkills('${key}')">✓ Pass All</button>
-          <button class="fail-all-btn" id="failAllBtn_${key}" onclick="failAllSkills('${key}')">✗ Not Yet Passed</button>
-          <button class="tier-expand-btn" id="tierChevron_${key}" onclick="toggleTier('${key}')" title="Expand/collapse">›</button>
-        </div>
+        <span class="tier-arrow">▼</span>
       </div>
-      <div class="tier-body" id="tierBody_${key}">
-        ${skills.map((skill, idx) => `
-          <div class="skill-row">
-            <span class="skill-name">${skill}</span>
-            <div class="skill-btns">
-              <button class="skill-btn" id="skill_${key}_${idx}_can" title="Can do" onclick="setSkill('${key}',${idx},'can')">✓</button>
-              <button class="skill-btn" id="skill_${key}_${idx}_cannot" title="Cannot do" onclick="setSkill('${key}',${idx},'cannot')">✗</button>
-            </div>
-            <button class="skill-delete-btn" title="Remove this skill" onclick="deleteSkill(this)">🗑</button>
-          </div>`).join('')}
-        <div style="padding:6px 12px 10px;">
-          <button class="add-skill-btn" onclick="addSkill('${key}')">+ Add skill / job task</button>
+      <div class="tier-block-body">
+        <ul class="skill-list" id="skillList-${k}">${skillsHTML}</ul>
+        <div class="add-skill-row">
+          <input class="add-skill-input" id="newSkill-${k}" placeholder="Add a skill..." onkeydown="if(event.key==='Enter')addSkill('${k}')">
+          <button class="add-skill-btn" onclick="addSkill('${k}')">Add</button>
         </div>
-      </div>
-    </div>`;
-  }).join('');
-  // Restore skill button states after re-render
-  Object.entries(skillState).forEach(([key, state]) => {
-    const m = key.match(/^(T\d+)_(\d+)$/);
-    if (!m) return;
-    const [, tk, idx] = m;
-    const canBtn    = document.getElementById(`skill_${tk}_${idx}_can`);
-    const cannotBtn = document.getElementById(`skill_${tk}_${idx}_cannot`);
-    if (canBtn)    canBtn.className    = 'skill-btn' + (state === 'can'    ? ' can-do'    : '');
-    if (cannotBtn) cannotBtn.className = 'skill-btn' + (state === 'cannot' ? ' cannot-do' : '');
-  });
-}
-
-function toggleTier(key) {
-  document.getElementById(`tierBody_${key}`).classList.toggle('open');
-  document.getElementById(`tierChevron_${key}`).classList.toggle('open');
-}
-
-function addSkill(tierKey) {
-  const tbody = document.getElementById(`tierBody_${tierKey}`);
-  const idx = tbody.querySelectorAll('.skill-row').length;
-  const row = document.createElement('div');
-  row.className = 'skill-row';
-  row.innerHTML = `
-    <span class="skill-name" style="min-width:40px;outline:1px dashed var(--sandstone);border-radius:3px;padding:2px 4px;" contenteditable="true" id="skillName_${tierKey}_${idx}"></span>
-    <div class="skill-btns">
-      <button class="skill-btn" id="skill_${tierKey}_${idx}_can" title="Can do" onclick="setSkill('${tierKey}',${idx},'can')">✓</button>
-      <button class="skill-btn" id="skill_${tierKey}_${idx}_cannot" title="Cannot do" onclick="setSkill('${tierKey}',${idx},'cannot')">✗</button>
-    </div>
-    <button class="skill-delete-btn" title="Remove this skill" onclick="deleteSkill(this)">🗑</button>`;
-  const addRow = tbody.querySelector('[onclick^="addSkill"]')?.closest('div');
-  tbody.insertBefore(row, addRow);
-  if (!tbody.classList.contains('open')) toggleTier(tierKey);
-  setTimeout(() => document.getElementById(`skillName_${tierKey}_${idx}`)?.focus(), 50);
-}
-
-function deleteSkill(btn) {
-  const row = btn.closest('.skill-row');
-  if (!row) return;
-  const nameEl = row.querySelector('[id^="skill_"]');
-  if (nameEl?.id) {
-    const m = nameEl.id.match(/skill_(\w+)_(\d+)_can/);
-    if (m) delete skillState[`${m[1]}_${m[2]}`];
+        <div class="template-actions">
+          <button class="tmpl-btn" onclick="saveTemplate('${k}')">Save as template</button>
+          <button class="tmpl-btn" onclick="restoreTemplate('${k}')">Restore defaults</button>
+        </div>
+      </div>`;
+    container.appendChild(block);
   }
-  row.remove();
-  recalc();
 }
 
-function setSkill(tierKey, idx, state) {
-  const k = `${tierKey}_${idx}`;
-  skillState[k] = skillState[k] === state ? null : state;
-  const canBtn    = document.getElementById(`skill_${tierKey}_${idx}_can`);
-  const cannotBtn = document.getElementById(`skill_${tierKey}_${idx}_cannot`);
-  if (canBtn)    canBtn.className    = 'skill-btn' + (skillState[k] === 'can'    ? ' can-do'    : '');
-  if (cannotBtn) cannotBtn.className = 'skill-btn' + (skillState[k] === 'cannot' ? ' cannot-do' : '');
-  recalc();
+function toggleTier(k) {
+  document.getElementById(`tier-${k}`).classList.toggle('open');
+}
+
+function getCustomSkills(k) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+    if (saved[k]) return saved[k];
+    const tmpl = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '{}');
+    if (tmpl[k]) return tmpl[k];
+  } catch(e) {}
+  return [...TIER_SKILLS[k]];
+}
+
+function saveCustomSkills(k, arr) {
+  const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+  saved[k] = arr;
+  localStorage.setItem(SKILLS_KEY, JSON.stringify(saved));
+}
+
+function addSkill(k) {
+  const inp  = document.getElementById(`newSkill-${k}`);
+  const text = inp.value.trim();
+  if (!text) return;
+  const skills = getCustomSkills(k);
+  skills.push(text);
+  saveCustomSkills(k, skills);
+  inp.value = '';
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+}
+
+function deleteSkill(k, idx) {
+  const skills = getCustomSkills(k);
+  skills.splice(idx, 1);
+  saveCustomSkills(k, skills);
+  if (!skillState[k]) skillState[k] = {};
+  const ns = {};
+  Object.keys(skillState[k]).forEach(i => {
+    const ni = parseInt(i);
+    if (ni < idx)  ns[ni]     = skillState[k][ni];
+    else if (ni > idx) ns[ni-1] = skillState[k][ni];
+  });
+  skillState[k] = ns;
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+}
+
+function onSkillCheck(cb) {
+  const k   = cb.dataset.tier;
+  const idx = parseInt(cb.dataset.idx);
+  if (!skillState[k]) skillState[k] = {};
+  skillState[k][idx] = cb.checked;
   autoSave();
 }
 
-function passAllSkills(tierKey) {
-  const indices = getSkillIndices(tierKey);
-  const allAlreadyPassed = indices.every(idx => skillState[`${tierKey}_${idx}`] === 'can');
-  indices.forEach(idx => {
-    skillState[`${tierKey}_${idx}`] = allAlreadyPassed ? null : 'can';
-    const canBtn    = document.getElementById(`skill_${tierKey}_${idx}_can`);
-    const cannotBtn = document.getElementById(`skill_${tierKey}_${idx}_cannot`);
-    if (canBtn)    canBtn.className    = 'skill-btn' + (!allAlreadyPassed ? ' can-do' : '');
-    if (cannotBtn) cannotBtn.className = 'skill-btn';
-  });
-  const btn = document.getElementById(`passAllBtn_${tierKey}`);
-  if (btn) btn.classList.toggle('all-passed', !allAlreadyPassed);
-  recalc(); autoSave();
+function saveTemplate(k) {
+  const tmpl = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '{}');
+  tmpl[k] = getCustomSkills(k);
+  localStorage.setItem(TEMPLATE_KEY, JSON.stringify(tmpl));
+  showToast(`${k} template saved`);
 }
 
-function failAllSkills(tierKey) {
-  const indices = getSkillIndices(tierKey);
-  const allAlreadyFailed = indices.every(idx => skillState[`${tierKey}_${idx}`] === 'cannot');
-  indices.forEach(idx => {
-    skillState[`${tierKey}_${idx}`] = allAlreadyFailed ? null : 'cannot';
-    const canBtn    = document.getElementById(`skill_${tierKey}_${idx}_can`);
-    const cannotBtn = document.getElementById(`skill_${tierKey}_${idx}_cannot`);
-    if (canBtn)    canBtn.className = 'skill-btn';
-    if (cannotBtn) cannotBtn.className = 'skill-btn' + (!allAlreadyFailed ? ' cannot-do' : '');
-  });
-  const btn = document.getElementById(`failAllBtn_${tierKey}`);
-  if (btn) btn.classList.toggle('all-failed', !allAlreadyFailed);
-  const passBtn = document.getElementById(`passAllBtn_${tierKey}`);
-  if (passBtn) passBtn.classList.remove('all-passed');
-  recalc();
-}
-
-function getSkillIndices(tierKey) {
-  const body = document.getElementById(`tierBody_${tierKey}`);
-  if (!body) return TIER_SKILLS[tierKey].map((_, i) => i);
-  const indices = [];
-  body.querySelectorAll(`[id^="skill_${tierKey}_"][id$="_can"]`).forEach(btn => {
-    const m = btn.id.match(new RegExp(`skill_${tierKey}_(\\d+)_can`));
-    if (m) indices.push(parseInt(m[1]));
-  });
-  return indices.length ? indices : TIER_SKILLS[tierKey].map((_, i) => i);
-}
-
-function getTierGateStatus(tierKey) {
-  const indices = getSkillIndices(tierKey);
-  let allPass = true, anyFail = false;
-  indices.forEach(idx => {
-    const state = skillState[`${tierKey}_${idx}`];
-    if (state === 'can') { /* ok */ }
-    else if (state === 'cannot') { anyFail = true; allPass = false; }
-    else { allPass = false; }
-  });
-  if (allPass && indices.length > 0) return 'pass';
-  if (anyFail) return 'fail';
-  return 'incomplete';
+function restoreTemplate(k) {
+  const saved = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+  delete saved[k];
+  localStorage.setItem(SKILLS_KEY, JSON.stringify(saved));
+  renderTierAccordion();
+  document.getElementById(`tier-${k}`).classList.add('open');
+  showToast(`${k} restored to defaults`);
 }
 
 // ─── Form state ───────────────────────────────────────────────────────────────
@@ -1010,6 +875,9 @@ function getFormState() {
     const el = document.getElementById(`notes${s.id}`);
     if (el) sectionNotes[s.id] = el.value;
   });
+  const dynamicSkills = {};
+  tierKeys.forEach(k => { dynamicSkills[k] = getCustomSkills(k); });
+
   return {
     hygName:              document.getElementById('hygName').value,
     homeOffice:           document.getElementById('homeOffice').value,
@@ -1022,7 +890,6 @@ function getFormState() {
     strengthsFeedback:    document.getElementById('strengthsFeedback').value,
     areasFeedback:        document.getElementById('areasFeedback').value,
     goalsFeedback:        document.getElementById('goalsFeedback').value,
-    employeeResponseFeedback: (document.getElementById('employeeResponseFeedback') || {}).value || '',
     employeeSig:          document.getElementById('employeeSig').value,
     employeeDate:         document.getElementById('employeeDate').value,
     reviewerSig:          document.getElementById('reviewerSig').value,
@@ -1033,14 +900,14 @@ function getFormState() {
     scores,
     sectionNotes,
     skillState,
+    dynamicSkills,
   };
 }
 
 function restoreStateObj(state) {
   if (!state) return;
   const textFields = ['hygName','homeOffice','currentRate','currentTier','hireDate','reviewDate','reviewerName','reviewPeriod',
-                      'strengthsFeedback','areasFeedback','goalsFeedback','employeeResponseFeedback',
-                      'employeeSig','employeeDate','reviewerSig',
+                      'strengthsFeedback','areasFeedback','goalsFeedback','employeeSig','employeeDate','reviewerSig',
                       'overrideNewRate','overrideEffectiveDate','overrideComment'];
   textFields.forEach(f => {
     const el = document.getElementById(f);
@@ -1051,6 +918,11 @@ function restoreStateObj(state) {
     toggleOverride();
   }
   if (state.skillState) skillState = state.skillState;
+  if (state.dynamicSkills) {
+    const curr = JSON.parse(localStorage.getItem(SKILLS_KEY) || '{}');
+    tierKeys.forEach(k => { if (state.dynamicSkills[k]) curr[k] = state.dynamicSkills[k]; });
+    localStorage.setItem(SKILLS_KEY, JSON.stringify(curr));
+  }
   renderTierAccordion();
   if (state.sectionNotes) {
     PERF_SECTIONS.forEach(s => {
@@ -1075,58 +947,151 @@ function autoSave() {
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
-let authJwt = null;
-function getJwt() {
-  if (authJwt) return authJwt;
-  const p = new URLSearchParams(window.location.search);
-  authJwt = p.get('auth') || localStorage.getItem('sh_review_auth');
-  if (authJwt) localStorage.setItem('sh_review_auth', authJwt);
-  return authJwt;
+function getAuthJwt() {
+  const params = new URLSearchParams(window.location.search);
+  const authParam = params.get('auth');
+  if (authParam) {
+    localStorage.setItem('sh_review_auth', authParam);
+    try {
+      params.delete('auth');
+      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+      history.replaceState(null, '', newUrl);
+    } catch(e) {}
+  }
+  return localStorage.getItem('sh_review_auth') || null;
+}
+
+function getDraftId() { return localStorage.getItem(DRAFT_ID_KEY) || null; }
+function setDraftId(id) {
+  localStorage.setItem(DRAFT_ID_KEY, id);
+  try {
+    const params = new URLSearchParams(window.location.search);
+    params.set('draft', id);
+    history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
+  } catch(e) {}
+}
+function clearDraftId() { localStorage.removeItem(DRAFT_ID_KEY); }
+function showDraftNote(msg) {
+  const el = document.getElementById('draftSavedNote');
+  if (el) { el.textContent = msg; el.style.display = 'inline'; }
 }
 
 // ─── Draft (server) ───────────────────────────────────────────────────────────
 async function saveDraft() {
-  const jwt = getJwt();
-  if (!jwt) { showToast('Not authenticated — draft not saved', 'err'); return; }
-  autoSave();
-  const state = getFormState();
-  const payload = { form_type:'rdh', employee_name: state.hygName || 'Unknown RDH', office: state.homeOffice, state };
+  const jwt = getAuthJwt();
+  if (!jwt) { showToast('Sign in from the dashboard to save drafts.', 'err'); return; }
+
+  const hygName = document.getElementById('hygName')?.value?.trim() || '';
+  const office  = document.getElementById('homeOffice')?.value || '';
+
+  const _draftBtns = ['headerSaveDraftBtn'].map(id => document.getElementById(id)).filter(Boolean);
+  _draftBtns.forEach(b => { b.disabled = true; b.textContent = '💾 Saving…'; });
+  showDraftNote('');
+
+  const state = { _scores: {...scores}, _skillState: {...skillState} };
+  document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
+    if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') {
+      state[el.id] = el.value;
+    }
+  });
+  document.querySelectorAll('[data-editable][id]').forEach(el => { state[el.id] = el.textContent; });
+
   try {
-    const draftId = localStorage.getItem(DRAFT_ID_KEY);
-    const url = draftId ? `${WORKER_BASE}/draft/${draftId}` : `${WORKER_BASE}/draft`;
-    const res = await fetch(url, {
-      method: draftId ? 'PUT' : 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${jwt}` },
+    const existingId = getDraftId();
+    const payload = {
+      form_type: 'rdh',
+      employee_name: hygName || 'Unnamed',
+      office: office || 'Unknown',
+      state,
+    };
+    if (existingId) payload.id = existingId;
+
+    let res = await fetch(WORKER_BASE + '/draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    if (data.id) localStorage.setItem(DRAFT_ID_KEY, data.id);
-    showToast('Draft saved ✓');
+
+    if (res.status === 404 && payload.id) {
+      clearDraftId();
+      delete payload.id;
+      res = await fetch(WORKER_BASE + '/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwt },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    if (res.ok) {
+      const data = await res.json();
+      setDraftId(data.id);
+      _draftBtns.forEach(b => { b.disabled = false; b.textContent = '💾 Save Draft'; });
+      showDraftNote('Draft saved ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+      showToast('Draft saved!', 'success');
+    } else if (res.status === 401) {
+      _draftBtns.forEach(b => { b.disabled = false; b.textContent = '💾 Save Draft'; });
+      showToast('Session expired. Sign in again from the dashboard.', 'err');
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || res.status);
+    }
   } catch(e) {
-    showToast('Draft save failed: ' + e.message, 'err');
+    _draftBtns.forEach(b => { b.disabled = false; b.textContent = '💾 Save Draft'; });
+    showToast('Could not save draft: ' + e.message, 'err');
   }
 }
 
 async function loadDraftFromUrl() {
-  const p = new URLSearchParams(window.location.search);
-  const urlDraftId = p.get('draft');
-  if (!urlDraftId) return;
-  const jwt = getJwt();
+  const params = new URLSearchParams(window.location.search);
+  const draftId = params.get('draft');
+  if (!draftId) return;
+
+  const jwt = getAuthJwt();
   if (!jwt) return;
+
   try {
-    const res = await fetch(`${WORKER_BASE}/draft/${urlDraftId}`, { headers: { 'Authorization':`Bearer ${jwt}` } });
+    const res = await fetch(WORKER_BASE + '/draft/' + encodeURIComponent(draftId), {
+      headers: { 'Authorization': 'Bearer ' + jwt },
+    });
     if (!res.ok) return;
     const data = await res.json();
-    const stateData = data.draft?.state || data.state;
-    if (stateData) {
-      draftPending = stateData;
-      const empName = data.draft?.employee_name || data.employee_name || 'RDH';
-      document.getElementById('draftModalBody').textContent = `Draft for "${empName}" found. Load it to continue?`;
-      document.getElementById('draftModal').classList.add('open');
-      localStorage.setItem(DRAFT_ID_KEY, urlDraftId);
+    const draft = data.draft || data;
+    if (draft.state) {
+      setDraftId(draftId);
+      const state = draft.state;
+      Object.keys(state).filter(k => !k.startsWith('_')).forEach(id => {
+        const el = document.getElementById(id);
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) el.value = state[id];
+      });
+      document.querySelectorAll('[data-editable][id]').forEach(el => {
+        if (state[el.id] !== undefined) el.textContent = state[el.id];
+      });
+      if (state._scores) {
+        Object.assign(scores, state._scores);
+        Object.keys(state._scores).forEach(id => {
+          const val = state._scores[id];
+          document.querySelectorAll(`[data-id="${id}"][data-val]`).forEach(btn => btn.classList.toggle('active', String(btn.dataset.val) === String(val)));
+        });
+      }
+      if (state._skillState) {
+        Object.assign(skillState, state._skillState);
+        Object.keys(state._skillState).forEach(k => {
+          const parts = k.split('_'); const tierKey = parts[0], idx = parts[1];
+          const sv = state._skillState[k];
+          const canBtn = document.getElementById(`skill_${tierKey}_${idx}_can`);
+          const cannotBtn = document.getElementById(`skill_${tierKey}_${idx}_cannot`);
+          if (canBtn) canBtn.className = 'skill-btn' + (sv === 'can' ? ' can-do' : '');
+          if (cannotBtn) cannotBtn.className = 'skill-btn' + (sv === 'cannot' ? ' cannot-do' : '');
+        });
+      }
+      if (document.getElementById('currentTier')?.value) onTierChange(true);
+      recalc();
+      showDraftNote('Draft loaded · ' + (draft.employee_name || ''));
+      showToast('Draft resumed — ' + (draft.employee_name || 'draft') + ' · ' + (draft.office || ''), 'success');
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('Could not load draft:', e);
+  }
 }
 
 function loadDraft() {
@@ -1405,22 +1370,26 @@ function resetForm() {
     el.addEventListener('input',  autoSave);
   });
 
-  // Show Save Draft button only when authenticated from dashboard
+  // Initialize auth from URL param; show nav buttons when authenticated
   getAuthJwt();
   if (localStorage.getItem('sh_review_auth')) {
-    const btn = document.getElementById('headerSaveDraftBtn');
-    if (btn) btn.style.display = 'inline-flex';
+    ['backToHomeBtn','backToRecordsBtn','headerSaveDraftBtn'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'inline-flex';
+    });
   }
 
-  // Load draft from URL, else restore localStorage
-  loadDraftFromUrl().then(() => {
-    if (!draftPending) {
-      try {
-        const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-        if (saved) restoreStateObj(saved);
-      } catch(e) {}
-    }
-  });
+  // Resume draft from URL param, or restore from localStorage
+  const _urlDraftId = new URLSearchParams(window.location.search).get('draft');
+  if (_urlDraftId) {
+    setDraftId(_urlDraftId);
+    loadDraftFromUrl().then(() => {});
+  } else {
+    clearDraftId();
+    try {
+      const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (saved) restoreStateObj(saved);
+    } catch(e) {}
+  }
 
   recalc();
 })();
