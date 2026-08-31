@@ -177,6 +177,10 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .settings-btn:hover { border-color: rgba(255,255,255,0.7); }
 body.form-locked .score-btn, body.form-locked .tier-block-header { pointer-events: none; opacity: 0.55; }
 body.form-locked input:not([type="password"]), body.form-locked select, body.form-locked textarea { pointer-events: none; background: var(--alabaster); }
+/* Edit-mode label editing */
+[data-editable] { outline: none; border-radius: 2px; }
+body.edit-mode [data-editable] { outline: 1px dashed var(--earth); background: #fffdf9; border-radius: 3px; cursor: text; padding: 0 3px; }
+body.edit-mode [data-editable]:focus { outline: 2px solid var(--earth); background: #fff8ee; }
 </style>
 </head>
 <body>
@@ -595,8 +599,13 @@ function renderKPIs() {
   KPIS.forEach(k => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><div class="kpi-name">${k.name}</div><div class="kpi-sub">${k.sub}</div></td>
-      <td style="text-align:center;white-space:nowrap;font-size:12px;color:#877765">${k.target}</td>
+      <td>
+        <div class="kpi-name" contenteditable="true" data-editable id="kpiName_${k.id}">${k.name}</div>
+        <div class="kpi-sub"  contenteditable="true" data-editable id="kpiSub_${k.id}">${k.sub}</div>
+      </td>
+      <td style="text-align:center;white-space:nowrap;font-size:12px;color:#877765">
+        <span contenteditable="true" data-editable id="kpiTarget_${k.id}">${k.target}</span>
+      </td>
       <td style="text-align:right;white-space:nowrap">
         <div class="score-btns" data-item="${k.id}">
           ${[0,1,2,3,4,5].map(s=>`<button class="score-btn" data-s="${s}">${s}</button>`).join('')}
@@ -626,8 +635,8 @@ function renderPerf() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>
-          <div class="kpi-name">${c.text}</div>
-          <div class="kpi-sub">${c.desc}</div>
+          <div class="kpi-name" contenteditable="true" data-editable id="critName_${c.id}">${c.text}</div>
+          <div class="kpi-sub"  contenteditable="true" data-editable id="critDesc_${c.id}">${c.desc}</div>
         </td>
         <td style="text-align:right;white-space:nowrap">
           <div class="score-btns" data-item="${c.id}">
@@ -1147,28 +1156,19 @@ async function generatePDF() {
 
 // ─── Lock / Edit ──────────────────────────────────────────────────────────────
 const FORM_PIN = 'smilehaus2024';
-let formLocked = false;
+let editMode = false;
 
-function lockForm() {
-  formLocked = true;
-  document.body.classList.add('form-locked');
-  const btn = document.getElementById('editLockBtn');
-  if (btn) { btn.textContent = '🔒 Locked'; btn.style.color = '#ffd580'; btn.style.borderColor = 'rgba(255,200,100,0.5)'; }
-}
-function unlockForm() {
-  formLocked = false;
-  document.body.classList.remove('form-locked');
-  const btn = document.getElementById('editLockBtn');
-  if (btn) { btn.textContent = '✏ Edit'; btn.style.color = ''; btn.style.borderColor = ''; }
-}
 function toggleLock() {
-  if (formLocked) {
-    unlockForm();
-    showToast('Form unlocked — all fields and score buttons are active.');
-  } else {
-    lockForm();
-    showToast('Form locked. Click Edit to unlock.');
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  const btn = document.getElementById('editLockBtn');
+  if (btn) {
+    btn.textContent = editMode ? '✓ Done Editing' : '✏ Edit';
+    btn.style.color        = editMode ? '#64b5f6' : '';
+    btn.style.borderColor  = editMode ? 'rgba(100,181,246,0.7)' : '';
+    btn.style.background   = editMode ? 'rgba(100,181,246,0.15)' : '';
   }
+  showToast(editMode ? 'Edit mode on — click any heading or description to edit.' : 'Edit mode off.');
 }
 
 function openPinModal(callback) {
