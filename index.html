@@ -966,11 +966,7 @@ function getAuthJwt() {
 function getDraftId() { return localStorage.getItem(DRAFT_ID_KEY) || null; }
 function setDraftId(id) {
   localStorage.setItem(DRAFT_ID_KEY, id);
-  try {
-    const params = new URLSearchParams(window.location.search);
-    params.set('draft', id);
-    history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
-  } catch(e) {}
+  // Draft ID lives in localStorage only; URL ?draft= is reserved for dashboard-originated links
 }
 function clearDraftId() { localStorage.removeItem(DRAFT_ID_KEY); }
 function showDraftNote(msg) {
@@ -1344,17 +1340,16 @@ function resetForm() {
     });
   }
 
-  // Resume draft from URL param, or restore from localStorage
+  // Restore state: localStorage is always the working copy (most recent edits).
+  // Only load from server when dashboard sends ?draft= and there is no local working copy.
   const _urlDraftId = new URLSearchParams(window.location.search).get('draft');
-  if (_urlDraftId) {
+  const _localSaved = (() => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch(e) { return null; } })();
+  if (_localSaved) {
+    if (_urlDraftId) setDraftId(_urlDraftId); // track the ID but use local data
+    restoreStateObj(_localSaved);
+  } else if (_urlDraftId) {
     setDraftId(_urlDraftId);
     loadDraftFromUrl().then(() => {});
-  } else {
-    clearDraftId();
-    try {
-      const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-      if (saved) restoreStateObj(saved);
-    } catch(e) {}
   }
 
   recalc();
