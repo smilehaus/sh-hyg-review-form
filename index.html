@@ -175,6 +175,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .reset-btn:hover { border-color: #ff8a80; color: #ff8a80; }
 .settings-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--white); border-radius: var(--radius); padding: 6px 14px; cursor: pointer; font-family: var(--font-body); font-size: 13px; white-space: nowrap; }
 .settings-btn:hover { border-color: rgba(255,255,255,0.7); }
+body.form-locked .score-btn, body.form-locked .tier-block-header { pointer-events: none; opacity: 0.55; }
+body.form-locked input:not([type="password"]), body.form-locked select, body.form-locked textarea { pointer-events: none; background: var(--alabaster); }
 </style>
 </head>
 <body>
@@ -485,21 +487,21 @@ const KPIS = [
 
 // ─── Performance Sections ─────────────────────────────────────────────────────
 const PERF_SECTIONS = [
-  { id:'secA', title:'A — Clinical Excellence', color:'#4361ee', criteria:[
+  { id:'secA', title:'A — Clinical Excellence', color:'#6b7a9e', criteria:[
     { id:'a1', text:'Perio Diagnosis & Treatment Planning',   desc:'Accuracy of probing, staging, grading, and perio tx recommendations' },
     { id:'a2', text:'Clinical Technique & Thoroughness',     desc:'Quality of scaling, root planing, and instrument selection' },
     { id:'a3', text:'Radiograph Accuracy & Interpretation',  desc:'Correct exposure, angulation, diagnostic quality, and written findings' },
     { id:'a4', text:'Infection Control & OSHA Compliance',   desc:'PPE use, sterilization protocol, and OSHA standard adherence' },
     { id:'a5', text:'Chart Documentation & Accuracy',        desc:'Completeness, timeliness, and clinical accuracy of chart notes' },
   ]},
-  { id:'secB', title:'B — Patient Experience', color:'#06d6a0', criteria:[
+  { id:'secB', title:'B — Patient Experience', color:'#5a9e8f', criteria:[
     { id:'b1', text:'Patient Communication & Education',     desc:'Clear explanation of findings, homecare instructions, and empathy' },
     { id:'b2', text:'Recall Motivation & Compliance',        desc:'Actively encourages patients to return on schedule; handles resistant patients' },
     { id:'b3', text:'Complaint Handling & Empathy',          desc:'Handles sensitive conversations professionally and de-escalates effectively' },
     { id:'b4', text:'New Patient Experience',                desc:'Thoroughness and warmth with first-time patients; builds trust from visit one' },
     { id:'b5', text:'Patient Retention Initiative',          desc:'Proactively re-activates overdue patients and supports recare outreach' },
   ]},
-  { id:'secC', title:'C — Team & Leadership', color:'#7209b7', criteria:[
+  { id:'secC', title:'C — Team & Leadership', color:'#7d6b8e', criteria:[
     { id:'c1', text:'Daily Huddle Participation',            desc:'Arrives prepared, contributes relevant clinical intel, flags scheduling risks' },
     { id:'c2', text:'Cross-Team Collaboration',              desc:'Supports DAs, front desk, and providers with open communication' },
     { id:'c3', text:'SOP & Protocol Adherence',              desc:'Consistently follows Smile Haus SOPs without reminders' },
@@ -1145,9 +1147,28 @@ async function generatePDF() {
 
 // ─── Lock / Edit ──────────────────────────────────────────────────────────────
 const FORM_PIN = 'smilehaus2024';
+let formLocked = false;
 
+function lockForm() {
+  formLocked = true;
+  document.body.classList.add('form-locked');
+  const btn = document.getElementById('editLockBtn');
+  if (btn) { btn.textContent = '🔒 Locked'; btn.style.color = '#ffd580'; btn.style.borderColor = 'rgba(255,200,100,0.5)'; }
+}
+function unlockForm() {
+  formLocked = false;
+  document.body.classList.remove('form-locked');
+  const btn = document.getElementById('editLockBtn');
+  if (btn) { btn.textContent = '✏ Edit'; btn.style.color = ''; btn.style.borderColor = ''; }
+}
 function toggleLock() {
-  showToast('Form is in edit mode — all fields and score buttons are active.', 'success');
+  if (formLocked) {
+    unlockForm();
+    showToast('Form unlocked — all fields and score buttons are active.');
+  } else {
+    lockForm();
+    showToast('Form locked. Click Edit to unlock.');
+  }
 }
 
 function openPinModal(callback) {
