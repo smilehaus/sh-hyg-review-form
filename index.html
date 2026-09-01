@@ -2218,9 +2218,11 @@ function showToast(msg, type = '') {
 
 // ─── PERSISTENCE ─────────────────────────────────────────────────────────────
 
-const SAVE_KEY     = 'sh_rdh_review_data';
-const TEMPLATE_KEY = 'sh_rdh_review_template'; // persists forever — not cleared on reset
-const SKILLS_KEY   = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
+const SAVE_KEY         = 'sh_rdh_review_data';
+const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
+const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
+const TIER_CONTENT_VER = '2026-09-01-v1';          // bump this whenever TIER_SKILLS defaults change
+const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
 
@@ -2246,6 +2248,13 @@ function autoSaveCustomSkills() {
 }
 
 function restoreCustomSkills() {
+  // If tier content version changed, wipe stale template so old custom skills don't duplicate new defaults
+  if (localStorage.getItem(TIER_VER_KEY) !== TIER_CONTENT_VER) {
+    localStorage.removeItem(TEMPLATE_KEY);
+    localStorage.removeItem(SKILLS_KEY);
+    localStorage.setItem(TIER_VER_KEY, TIER_CONTENT_VER);
+    return;
+  }
   // Template takes priority (has edited names too); fall back to auto-saved skills
   let customSkills = null, skillNames = null, kpiNames = null, perfNames = null, perfDescs = null;
   const tmplRaw = localStorage.getItem(TEMPLATE_KEY);
