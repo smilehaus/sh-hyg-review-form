@@ -91,8 +91,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .kpi-table tr:nth-child(even) td, .perf-table tr:nth-child(even) td { background: var(--alabaster); }
 .kpi-name, .crit-name { font-size: 14px; font-weight: 500; }
 .kpi-sub, .crit-desc { font-size: 12px; color: #5a4a3c; margin-top: 2px; }
-.kpi-target-input { border: none; background: transparent; font-family: var(--font-body); font-size: 13px; color: #5a4a3c; text-align: center; width: 100%; padding: 0; cursor: default; }
-.kpi-target-input:not(:disabled) { border-bottom: 1px dashed var(--sandstone); cursor: text; background: #fffdf9; padding: 2px 4px; border-radius: 3px; }
+.kpi-target-input { border: none; background: transparent; font-family: var(--font-body); font-size: 13px; color: #5a4a3c; text-align: center; width: 100%; padding: 2px 4px; cursor: text; border-radius: 3px; }
 [contenteditable="true"] { outline: none; border-bottom: 1px dashed var(--sandstone); border-radius: 2px; cursor: text; background: #fffdf9; padding: 0 2px; }
 [contenteditable="true"]:focus { background: #fff8ee; border-bottom-color: var(--earth); }
 /* Editable labels — always click-to-edit */
@@ -757,7 +756,7 @@ function renderKPIs() {
         ${k.sub ? `<div class="kpi-sub" contenteditable="true" data-editable id="kpiSub_${k.id}">${k.sub}</div>` : ''}
       </td>
       <td style="text-align:center;">
-        <input class="kpi-target-input" id="kpiTarget_${k.id}" value="${k.target}" disabled>
+        <div class="kpi-target-input" contenteditable="true" data-editable id="kpiTarget_${k.id}">${k.target}</div>
       </td>
       <td>
         <div class="score-group">
@@ -772,7 +771,7 @@ function renderKPIs() {
 
 function renderPerf() {
   document.getElementById('perfBody').innerHTML = PERF_SECTIONS.map(sec => `
-    <div class="subsection-label">${sec.id}. &nbsp;${sec.title}</div>
+    <div class="subsection-label">${sec.id}.&nbsp;<span contenteditable="true" data-editable id="secTitle_${sec.id}">${sec.title}</span></div>
     <table class="perf-table">
       <thead><tr>
         <th style="width:62%">Performance Standard</th>
