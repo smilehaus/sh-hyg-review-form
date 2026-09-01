@@ -640,7 +640,8 @@ const TIERS_STANDARD = {
   T1: { floor:50, ceiling:55, x:0.020, next:'T2', label:'Dental Hygienist I',       rate:'$50–55/hr' },
   T2: { floor:55, ceiling:58, x:0.025, next:'T3', label:'Dental Hygienist II',      rate:'$55–58/hr' },
   T3: { floor:58, ceiling:62, x:0.030, next:'T4', label:'Senior Hygienist',         rate:'$58–62/hr' },
-  T4: { floor:62, ceiling:65, x:0.035, next:null,  label:'Lead / Expert Hygienist', rate:'$62–65/hr' },
+  T4: { floor:62, ceiling:65, x:0.035, next:'T5',  label:'Lead / Expert Hygienist', rate:'$62–65/hr' },
+  T5: { floor:65, ceiling:70, x:0.040, next:null,  label:'Master Hygienist',        rate:'$65–70/hr' },
 };
 const TIERS = TIERS_STANDARD;
 
@@ -677,6 +678,13 @@ const TIER_SKILLS = {
     'Cover hygiene schedules at other Smile Haus offices when needed',
     'Lead clinical quality initiatives (e.g., probe accuracy, CE compliance)',
     'Operate fully autonomously — no coaching needed for any standard case',
+  ],
+  T5: [
+    'All T4 skills performed at a master level across all patient types',
+    'Serve as the clinical standard-bearer for hygiene across multiple offices',
+    'Train and develop other Lead Hygienists',
+    'Independently design and implement clinical quality improvement programs',
+    'Recognized by providers and administration as a top-tier clinical resource',
   ],
 };
 
@@ -804,7 +812,7 @@ function renderPerf() {
 
 function renderTierAccordion() {
   const accordion = document.getElementById('tierAccordion');
-  const tierKeys = ['T1','T2','T3','T4'];
+  const tierKeys = ['T1','T2','T3','T4','T5'];
   accordion.innerHTML = tierKeys.map(key => {
     const tier = TIERS[key];
     const skills = TIER_SKILLS[key];
@@ -1011,7 +1019,7 @@ function recalc() {
   // Gate calculation
   const tierKey = document.getElementById('currentTier').value;
   const tier = getActiveTiers()[tierKey];
-  const tierKeys = ['T1','T2','T3','T4'];
+  const tierKeys = ['T1','T2','T3','T4','T5'];
 
   // Update tier badges and status indicators
   tierKeys.forEach(k => {
@@ -1290,11 +1298,11 @@ function rateToTier(rate) {
   const r = parseFloat(rate);
   if (isNaN(r) || r <= 0) return '';
   const tiers = getActiveTiers();
-  const keys = ['T1','T2','T3','T4'];
+  const keys = ['T1','T2','T3','T4','T5'];
   for (const k of keys) {
     if (r >= tiers[k].floor && r <= tiers[k].ceiling) return k;
   }
-  if (r > tiers.T4.ceiling) return 'T4';
+  if (r > tiers.T5.ceiling) return 'T5';
   // Between tiers — assign to lower tier
   for (let i = keys.length - 2; i >= 0; i--) {
     if (r > tiers[keys[i]].ceiling) return keys[i];
@@ -1323,9 +1331,9 @@ function onTierChange(fromRate = false) {
 
 function onOfficeChange() {
   const tiers = getActiveTiers();
-  const keys = ['T1','T2','T3','T4'];
+  const keys = ['T1','T2','T3','T4','T5'];
   const labels = [
-    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist',
+    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist', 'Master Hygienist',
   ];
   // Update rate spans in tier accordion
   keys.forEach(k => {
@@ -1388,7 +1396,7 @@ async function handleSubmit() {
   }
   // Require tier competency checklist filled for current tier and all tiers below
   {
-    const tierKeys = ['T1','T2','T3','T4'];
+    const tierKeys = ['T1','T2','T3','T4','T5'];
     const currentIdx = tierKeys.indexOf(tier);
     const tiersToCheck = tierKeys.slice(0, currentIdx + 1);
     let allMarked = true;
@@ -1440,7 +1448,7 @@ async function handleSubmit() {
       if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') formState[el.id] = el.value;
     });
     document.querySelectorAll('[data-editable][id]').forEach(el => { formState[el.id] = el.textContent; });
-    ['T1','T2','T3','T4'].forEach(k => {
+    ['T1','T2','T3','T4','T5'].forEach(k => {
       const body = document.getElementById(`tierBody_${k}`);
       if (!body) return;
       const base = TIER_SKILLS[k].length;
@@ -1888,7 +1896,7 @@ async function saveDraft() {
     }
   });
   document.querySelectorAll('[data-editable][id]').forEach(el => { state[el.id] = el.textContent; });
-  ['T1','T2','T3','T4'].forEach(k => {
+  ['T1','T2','T3','T4','T5'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const base = TIER_SKILLS[k].length;
@@ -2200,7 +2208,7 @@ const SKILLS_KEY   = 'sh_rdh_review_skills';   // auto-saved custom skills — n
 
 function getCustomSkills() {
   const cs = {};
-  ['T1','T2','T3','T4'].forEach(k => {
+  ['T1','T2','T3','T4','T5'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const base = TIER_SKILLS[k].length;
@@ -2286,7 +2294,7 @@ function restoreCustomSkills() {
 function saveTemplate(quiet = false) {
   const template = { customSkills: getCustomSkills(), skillNames: {}, kpiNames: {}, perfNames: {}, perfDescs: {} };
   // Capture any renamed base skill labels
-  ['T1','T2','T3','T4'].forEach(k => {
+  ['T1','T2','T3','T4','T5'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const rows = body.querySelectorAll('.skill-row');
@@ -2360,7 +2368,7 @@ function saveFormState() {
       state[el.id] = el.textContent;
     });
     // Dynamic added skills (beyond base TIER_SKILLS count)
-    ['T1','T2','T3','T4'].forEach(k => {
+    ['T1','T2','T3','T4','T5'].forEach(k => {
       const body = document.getElementById(`tierBody_${k}`);
       if (!body) return;
       const base = TIER_SKILLS[k].length;
@@ -2465,9 +2473,9 @@ function restoreFormState() {
 
 // Populate currentTier dropdown from TIERS_STANDARD at load; onOfficeChange() will swap when needed
 (function initTierDropdown() {
-  const keys = ['T1','T2','T3','T4'];
+  const keys = ['T1','T2','T3','T4','T5'];
   const labels = [
-    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist',
+    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist', 'Master Hygienist',
   ];
   const sel = document.getElementById('currentTier');
   sel.innerHTML = '<option value="">— Select tier —</option>' +
