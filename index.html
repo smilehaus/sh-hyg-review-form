@@ -637,53 +637,71 @@ body.form-locked .skill-delete-btn { display: none; }
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const TIERS_STANDARD = {
-  T1: { floor:50, ceiling:55, x:0.020, next:'T2', label:'Dental Hygienist I',       rate:'$50–55/hr' },
-  T2: { floor:55, ceiling:58, x:0.025, next:'T3', label:'Dental Hygienist II',      rate:'$55–58/hr' },
-  T3: { floor:58, ceiling:62, x:0.030, next:'T4', label:'Senior Hygienist',         rate:'$58–62/hr' },
-  T4: { floor:62, ceiling:65, x:0.035, next:'T5',  label:'Lead / Expert Hygienist', rate:'$62–65/hr' },
-  T5: { floor:65, ceiling:70, x:0.040, next:null,  label:'Master Hygienist',        rate:'$65–70/hr' },
+  T1: { floor:50, ceiling:55, x:0.020, next:'T2', label:'Associate Hygienist - Foundation', rate:'$50+/hr' },
+  T2: { floor:55, ceiling:60, x:0.025, next:'T3', label:'Core Hygienist',                   rate:'$55+/hr' },
+  T3: { floor:60, ceiling:65, x:0.030, next:'T4', label:'Senior Hygienist',                 rate:'$60+/hr' },
+  T4: { floor:65, ceiling:70, x:0.035, next:'T5', label:'Lead Hygienist',                   rate:'$65+/hr' },
+  T5: { floor:70, ceiling:75, x:0.040, next:null,  label:'Master Hygienist',                rate:'$70+/hr' },
 };
 const TIERS = TIERS_STANDARD;
 
 function getActiveTiers() { return TIERS_STANDARD; }
 
+// ⛔ ADMIN-ONLY — tier content locked. Edit via code only (not the UI).
 const TIER_SKILLS = {
   T1: [
-    'Demonstrate safe, thorough scaling and root planing technique',
-    'Complete adult perio assessment with accurate probing on every new patient',
-    'Update medical histories and confirm medications at every appointment',
-    'Achieve radiograph compliance with correct angulation and exposure',
-    'Pre-schedule patients for next recall appointment at each visit',
-    'Follow OSHA and infection control protocols without reminders',
+    'Meets average daily production goal for past 90 days: $1,200 – $1,272/day',
+    'Achieves Periodontal Treatment ≥ 30%',
+    'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
+    'Completes comprehensive adult perio assessment with accurate 6-point probing annually (evaluating 5mm+ bleeding for SRP)',
+    'Demonstrates safe, thorough scaling, root planing, and cavitron techniques',
+    'Take quality intraoral photos/radiographs for all new patients and 1x/yr for recall patients',
+    'Adheres strictly to OSHA, infection control, and practice SOPs without reminders',
+    'Arrives prepared for morning huddle, collaborates positively, and adheres to zero-tolerance gossip policy',
+    'iTero wellness scan completed under 4 minutes',
+    'No chronic SOP deviations',
+    'Demonstrates strong growth potential',
+    'Learning adjunctive protocols SDF, Fluoride Varnish, Prevident 5000 Electric Toothbrush Whitening Kits',
   ],
   T2: [
-    'Achieve hygiene production rate ≥ 90% consistently',
-    'Stage and grade perio accurately and document treatment rationale',
-    'Manage perio maintenance patients independently and track compliance',
-    'Achieve appointment pre-schedule rate ≥ 90%',
-    'Conduct patient education that improves homecare outcomes',
-    'Maintain complete and timely chart documentation daily',
+    'Meets average daily production goal for past 90 days: $1,296 – $1,368/day',
+    'Achieves Periodontal Treatment ≥ 30%',
+    'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
+    'Accurately stages and grades periodontitis; manages perio maintenance patients independently',
+    'Consistently recommends and delivers adjunctive care (Fluoride, PreviDent, SDF) on every eligible visit',
+    'Confidently co-diagnoses restorative needs and sets up seamless doctor handoffs',
+    'Supports back-office and clinical flow (assists DAs, supports doctor flow, helps confirm patients during downtime)',
   ],
   T3: [
-    'Achieve all 5 KPI targets consistently',
-    'Present co-diagnosis observations to referring doctors with confidence',
-    'Support clinical onboarding of new hygienists or assistants',
-    'Identify and proactively re-activate overdue hygiene patients',
-    'Participate in CE or study club and share learnings with the team',
+    'Meets average daily production goal for past 90 days: $1,392 – $1,464/day',
+    'Achieves Periodontal Treatment ≥ 30%',
+    'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
+    'No chronic SOP deviations',
+    'Proactively identifies Invisalign candidates and delivers effective patient consultations',
     'Handle complex perio cases and resistant patients independently',
+    'Assists doctor proficiently in clinical restorative/surgical treatment when needed',
+    'Proficient in orthodontic support protocols (places attachments and assists in Invisalign visits)',
+    'Leads and runs productive, organized morning huddles',
+    'Actively pursues CE, shares clinical knowledge, and participates in clinical onboarding of new team members',
+    'Continually confirms and maintains all Tier 1 and Tier 2 competencies',
   ],
   T4: [
-    'All T3 skills performed at a mastery level independently',
-    'Mentor new hygienists on clinical technique and perio diagnosis',
-    'Cover hygiene schedules at other Smile Haus offices when needed',
-    'Lead clinical quality initiatives (e.g., probe accuracy, CE compliance)',
-    'Operate fully autonomously — no coaching needed for any standard case',
+    'Meets average daily production goal for past 90 days: $1,488 – $1,560/day',
+    'Achieves Periodontal Treatment ≥ 30%',
+    'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
+    'Serves as primary clinical mentor; co-diagnoses every patient',
+    'Proficiently manages advanced orthodontic treatment workflows and clinical coordination',
+    'Co-owns daily huddle facilitation and conducts mid-day/mid-session flow huddles',
+    'Co-runs monthly practice meetings (hygiene section)',
+    'Mentors all hygiene team members',
   ],
   T5: [
-    'All T4 skills performed at a master level across all patient types',
-    'Serve as the clinical standard-bearer for hygiene across multiple offices',
-    'Train and develop other Lead Hygienists',
-    'Independently design and implement clinical quality improvement programs',
+    'Meets average daily production goal for past 90 days: $1,680 – $1,800/day',
+    'Achieves Periodontal Treatment ≥ 30%',
+    'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
+    'Serves as the clinical standard-bearer for hygiene across multiple offices',
+    'Trains and develops Lead and Senior Hygienists',
+    'Independently designs and implements clinical quality improvement programs',
     'Recognized by providers and administration as a top-tier clinical resource',
   ],
 };
@@ -1333,7 +1351,7 @@ function onOfficeChange() {
   const tiers = getActiveTiers();
   const keys = ['T1','T2','T3','T4','T5'];
   const labels = [
-    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist', 'Master Hygienist',
+    'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
   ];
   // Update rate spans in tier accordion
   keys.forEach(k => {
@@ -2328,11 +2346,17 @@ function saveTemplate(quiet = false) {
   if (!quiet) showToast('Template saved — skills and labels will be preserved on every reset.', 'success');
 }
 
+const ADMIN_PIN = 'rdh2026'; // ⛔ Admin-only — controls Edit Labels access
 let _editMode = false;
 
 function toggleEditLabels() {
   if (document.body.classList.contains('form-locked')) {
     showToast('Unlock the form first before editing labels.', 'error'); return;
+  }
+  if (!_editMode) {
+    const entered = prompt('Admin PIN required to edit tier content:');
+    if (entered === null) return;
+    if (entered !== ADMIN_PIN) { showToast('Incorrect PIN — content is admin-protected.', 'error'); return; }
   }
   _editMode = !_editMode;
   const btn = document.getElementById('editLabelsBtn');
@@ -2475,7 +2499,7 @@ function restoreFormState() {
 (function initTierDropdown() {
   const keys = ['T1','T2','T3','T4','T5'];
   const labels = [
-    'Dental Hygienist I', 'Dental Hygienist II', 'Senior Hygienist', 'Lead / Expert Hygienist', 'Master Hygienist',
+    'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
   ];
   const sel = document.getElementById('currentTier');
   sel.innerHTML = '<option value="">— Select tier —</option>' +
