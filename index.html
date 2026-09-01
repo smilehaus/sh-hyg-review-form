@@ -813,7 +813,7 @@ function renderTierAccordion() {
         <div class="tier-header-left">
           <span class="tier-badge" id="tierBadge_${key}">${key}</span>
           <span class="tier-title" contenteditable="true" data-editable id="tierTitle_${key}">${tier.label}</span>
-          <span class="tier-rate" id="tierRate_${key}">${tier.rate}</span>
+          <span class="tier-rate" contenteditable="true" data-editable id="tierRate_${key}">${tier.rate}</span>
           <span class="tier-gate-status gate-na" id="tierGateStatus_${key}">—</span>
         </div>
         <div class="tier-header-right">
@@ -1335,7 +1335,7 @@ function onOfficeChange() {
   const tierSel = document.getElementById('currentTier');
   const selectedVal = tierSel.value;
   tierSel.innerHTML = `<option value="">— Select tier —</option>` +
-    keys.map((k, i) => `<option value="${k}">${k} — ${tiers[k].rate} — ${labels[i]}</option>`).join('');
+    keys.map((k, i) => `<option value="${k}">Tier ${i+1}: ${tiers[k].label}</option>`).join('');
   tierSel.value = selectedVal;
   // Re-run rate auto-detect with new tier structure
   onRateChange();
@@ -2244,7 +2244,7 @@ function restoreCustomSkills() {
         const body = document.getElementById(`tierBody_${tierKey}`);
         const rows = body.querySelectorAll('.skill-row');
         const nameEl = rows[rows.length - 1].querySelector('.skill-name');
-        if (nameEl) { nameEl.textContent = text; nameEl.contentEditable = 'false'; }
+        if (nameEl) nameEl.textContent = text;
       });
     });
   }
@@ -2470,7 +2470,7 @@ function restoreFormState() {
   ];
   const sel = document.getElementById('currentTier');
   sel.innerHTML = '<option value="">— Select tier —</option>' +
-    keys.map((k, i) => `<option value="${k}">${k} — ${TIERS_STANDARD[k].rate} — ${labels[i]}</option>`).join('');
+    keys.map((k, i) => `<option value="${k}">Tier ${i+1}: ${labels[i]}</option>`).join('');
 })();
 
 renderKPIs();
