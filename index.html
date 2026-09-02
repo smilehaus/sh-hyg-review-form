@@ -176,6 +176,11 @@ body.form-locked .add-skill-btn { display: none; }
 .skill-row { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #f0ece4; }
 .skill-row:last-child { border-bottom: none; }
 .skill-row:nth-child(even) { background: #fafaf8; }
+.drag-handle { cursor: grab; color: var(--sandstone); font-size: 16px; padding: 0 6px 0 0; flex-shrink: 0; user-select: none; line-height: 1; }
+.drag-handle:active { cursor: grabbing; }
+.skill-row.dragging { opacity: 0.35; background: var(--alabaster) !important; }
+.skill-row.drag-over-top { box-shadow: inset 0 2px 0 0 var(--earth); }
+.skill-row.drag-over-bot { box-shadow: inset 0 -2px 0 0 var(--earth); }
 .skill-name { flex: 1; font-size: 13px; color: #1a120a; line-height: 1.4; font-family: var(--font-body); font-weight: 400; cursor: default; }
 .skill-name[contenteditable="true"] { color: #1a120a; font-size: 13px; font-family: var(--font-body); font-weight: 400; cursor: text; outline: none; border: none; background: none; -webkit-font-smoothing: antialiased; }
 .skill-delete-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--taupe); padding: 2px 4px; border-radius: 3px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s, color 0.15s; }
@@ -849,9 +854,10 @@ function renderTierAccordion() {
           <button class="tier-expand-btn" id="tierChevron_${key}" onclick="toggleTier('${key}')" title="Expand/collapse">›</button>
         </div>
       </div>
-      <div class="tier-body" id="tierBody_${key}">
+      <div class="tier-body" id="tierBody_${key}" ondragover="onTierDragOver(event)" ondrop="onTierDrop(event)">
         ${skills.map((skill, idx) => `
-          <div class="skill-row">
+          <div class="skill-row" draggable="true" ondragstart="onSkillDragStart(event)" ondragend="onSkillDragEnd(event)">
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
             <span class="skill-name" contenteditable="true" data-editable id="skillName_${key}_${idx}">${skill}</span>
             <div class="skill-btns">
               <button class="skill-btn" id="skill_${key}_${idx}_can" title="Can do" onclick="setSkill('${key}',${idx},'can')">✓</button>
@@ -928,7 +934,11 @@ function addSkill(tierKey) {
   const idx = tbody.querySelectorAll('.skill-row').length;
   const row = document.createElement('div');
   row.className = 'skill-row';
+  row.draggable = true;
+  row.addEventListener('dragstart', onSkillDragStart);
+  row.addEventListener('dragend', onSkillDragEnd);
   row.innerHTML = `
+    <span class="drag-handle" title="Drag to reorder">⠿</span>
     <span class="skill-name" contenteditable="true" data-editable id="skillName_${tierKey}_${idx}"></span>
     <div class="skill-btns">
       <button class="skill-btn" id="skill_${tierKey}_${idx}_can" title="Can do" onclick="setSkill('${tierKey}',${idx},'can')">✓</button>
@@ -957,6 +967,84 @@ function deleteSkill(btn) {
   row.remove();
   autoSaveCustomSkills();
   saveFormState();
+}
+
+// ─── Drag-and-drop reorder for skill rows ────────────────────────────────────
+
+let _dragRow = null;
+
+function onSkillDragStart(e) {
+  _dragRow = e.currentTarget;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', '');
+  setTimeout(() => _dragRow && _dragRow.classList.add('dragging'), 0);
+}
+
+function onSkillDragEnd() {
+  if (_dragRow) _dragRow.classList.remove('dragging');
+  document.querySelectorAll('.skill-row.drag-over-top,.skill-row.drag-over-bot')
+    .forEach(r => r.classList.remove('drag-over-top','drag-over-bot'));
+  _dragRow = null;
+}
+
+function onTierDragOver(e) {
+  e.preventDefault();
+  const row = e.target.closest('.skill-row');
+  document.querySelectorAll('.skill-row.drag-over-top,.skill-row.drag-over-bot')
+    .forEach(r => r.classList.remove('drag-over-top','drag-over-bot'));
+  if (row && row !== _dragRow) {
+    const rect = row.getBoundingClientRect();
+    row.classList.add(e.clientY < rect.top + rect.height / 2 ? 'drag-over-top' : 'drag-over-bot');
+  }
+}
+
+function onTierDrop(e) {
+  e.preventDefault();
+  const row = e.target.closest('.skill-row');
+  document.querySelectorAll('.skill-row.drag-over-top,.skill-row.drag-over-bot')
+    .forEach(r => r.classList.remove('drag-over-top','drag-over-bot'));
+  if (!row || row === _dragRow || !_dragRow) return;
+  const body = row.closest('.tier-body');
+  if (!body) return;
+  const rect = row.getBoundingClientRect();
+  if (e.clientY < rect.top + rect.height / 2) {
+    body.insertBefore(_dragRow, row);
+  } else {
+    body.insertBefore(_dragRow, row.nextElementSibling);
+  }
+  rebuildTierIndices(body.id.replace('tierBody_', ''));
+}
+
+function rebuildTierIndices(tierKey) {
+  const body = document.getElementById(`tierBody_${tierKey}`);
+  if (!body) return;
+  const rows = [...body.querySelectorAll('.skill-row')];
+  // Snapshot: capture current text + state for each row before renumbering
+  const snap = rows.map(row => {
+    const nameEl = row.querySelector('.skill-name');
+    const canBtn = row.querySelector('[id$="_can"]');
+    const oldIdx = canBtn ? canBtn.id.replace(`skill_${tierKey}_`,'').replace('_can','') : null;
+    return {
+      text:  nameEl ? nameEl.textContent : '',
+      state: oldIdx !== null ? (skillState[`${tierKey}_${oldIdx}`] || null) : null,
+    };
+  });
+  // Wipe tier state entries and re-apply from snapshot
+  Object.keys(skillState).filter(k => k.startsWith(`${tierKey}_`)).forEach(k => delete skillState[k]);
+  rows.forEach((row, i) => {
+    const nameEl = row.querySelector('.skill-name');
+    if (nameEl) nameEl.id = `skillName_${tierKey}_${i}`;
+    const btns = row.querySelectorAll('.skill-btn');
+    if (btns[0]) { btns[0].id = `skill_${tierKey}_${i}_can`;    btns[0].setAttribute('onclick', `setSkill('${tierKey}',${i},'can')`); }
+    if (btns[1]) { btns[1].id = `skill_${tierKey}_${i}_cannot`; btns[1].setAttribute('onclick', `setSkill('${tierKey}',${i},'cannot')`); }
+    if (snap[i].state) skillState[`${tierKey}_${i}`] = snap[i].state;
+    if (btns[0]) btns[0].className = 'skill-btn' + (snap[i].state === 'can'    ? ' can-do'    : '');
+    if (btns[1]) btns[1].className = 'skill-btn' + (snap[i].state === 'cannot' ? ' cannot-do' : '');
+  });
+  autoSaveCustomSkills();
+  saveFormState();
+  saveTemplate(true);
+  recalc();
 }
 
 function setSkill(tierKey, idx, state) {
