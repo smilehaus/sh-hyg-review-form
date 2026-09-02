@@ -588,10 +588,10 @@ body.form-locked .skill-delete-btn { display: none; }
   <div class="modal" style="max-width:380px;text-align:center;">
     <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
     <h3 style="margin:0 0 10px;">Reset Form?</h3>
-    <p style="font-size:14px;color:#877765;margin:0 0 24px;">This will clear all scores, selections, and entered data. This cannot be undone.</p>
+    <p style="font-size:14px;color:#877765;margin:0 0 24px;">This will clear all scores, employee info, and notes. Tier skills and labels will <strong>not</strong> be changed.</p>
     <div style="display:flex;gap:10px;justify-content:center;">
       <button class="btn-cancel" onclick="closeResetModal()">Cancel</button>
-      <button onclick="resetForm()" style="font-family:var(--font-body);font-size:13px;font-weight:600;background:#c0392b;color:#fff;border:none;border-radius:var(--radius);padding:8px 22px;cursor:pointer;">Yes, Reset Everything</button>
+      <button onclick="resetForm()" style="font-family:var(--font-body);font-size:13px;font-weight:600;background:#c0392b;color:#fff;border:none;border-radius:var(--radius);padding:8px 22px;cursor:pointer;">Yes, Reset Scores</button>
     </div>
   </div>
 </div>
@@ -2172,14 +2172,29 @@ function closeResetModal() {
 function resetForm() {
   closeResetModal();
 
-  // Clear persisted state
-  localStorage.removeItem(SAVE_KEY);
+  // Clear only scores + skill states from persisted storage — preserve _dynamicSkills and template
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    delete saved._scores;
+    delete saved._skillState;
+    // Clear plain field values (inputs/selects/textareas) but keep _dynamicSkills
+    Object.keys(saved).filter(k => !k.startsWith('_')).forEach(k => delete saved[k]);
+    localStorage.setItem(SAVE_KEY, JSON.stringify(saved));
+  } catch { localStorage.removeItem(SAVE_KEY); }
 
   // Clear score & skill state objects
   Object.keys(scores).forEach(k => delete scores[k]);
   Object.keys(skillState).forEach(k => delete skillState[k]);
 
-  // Reset all standard inputs/selects/textareas in main + submit section
+  // Clear score button active states in DOM
+  document.querySelectorAll('.score-btn.active').forEach(btn => btn.classList.remove('active'));
+
+  // Clear skill can/cannot button states in DOM
+  document.querySelectorAll('.skill-btn.can-do, .skill-btn.cannot-do').forEach(btn => {
+    btn.className = 'skill-btn';
+  });
+
+  // Reset all standard inputs/selects/textareas — skip skill name spans (contenteditable)
   document.querySelectorAll('.main input, .main select, .main textarea, .submit-section input, .submit-section textarea').forEach(el => {
     if (el.type === 'checkbox') { el.checked = false; }
     else { el.value = ''; }
@@ -2192,19 +2207,12 @@ function resetForm() {
     if (el) el.value = today;
   });
 
-  // Re-render all dynamic sections (restores default labels & clears active classes)
-  renderKPIs();
-  renderPerf();
-  renderTierAccordion();
-  restoreCustomSkills(); // re-apply template / auto-saved custom skills after re-render
-
   // Ensure form is not in locked state
   document.body.classList.remove('form-locked');
 
-  // Clear draft tracking so a new Save Draft creates a fresh draft, not an update
+  // Clear draft tracking
   clearDraftId();
   showDraftNote('');
-  // Remove ?draft= from URL if present
   try {
     const p = new URLSearchParams(window.location.search);
     p.delete('draft');
@@ -2212,7 +2220,7 @@ function resetForm() {
   } catch(e) {}
 
   recalc();
-  showToast('Form has been reset.', 'success');
+  showToast('Scores and data cleared. Tier content preserved.', 'success');
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
