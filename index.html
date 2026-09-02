@@ -331,7 +331,6 @@ body.form-locked .skill-delete-btn { display: none; }
       <div class="band-name" id="bandName" style="opacity:0.35;">Fill in scores below</div>
       <div class="raise-preview" id="raisePreview">—</div>
       <div class="new-rate" id="newRatePreview">Select tier &amp; enter scores</div>
-      <div class="new-rate" id="salaryPreview" style="opacity:0.4;margin-top:1px;display:none;"></div>
     </div>
   </div>
 
@@ -456,88 +455,14 @@ body.form-locked .skill-delete-btn { display: none; }
     </div>
   </div>
 
-  <!-- Manager Override -->
+  <!-- Manager / Doctor Comments -->
   <div class="card">
     <div class="card-header">
-      <h2>Manager Override</h2>
+      <h2>Manager/Doctor Comments</h2>
       <span class="pts">Optional</span>
     </div>
     <div class="card-body">
-      <div class="override-box" id="overrideBox">
-        <div class="override-toggle" onclick="toggleOverride()">
-          <input type="checkbox" id="overrideCheck" onclick="event.stopPropagation(); toggleOverride()">
-          <span class="override-toggle-label">Manager Override — Grant Raise Outside Formula</span>
-          <span class="override-toggle-sub" id="overrideBadge">Off</span>
-        </div>
-        <div class="override-body" id="overrideBody">
-          <label class="field-label" style="margin-bottom:6px;">Override Raise Amount</label>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <span style="font-size:14px;font-weight:600;color:var(--earth);">+$</span>
-            <input type="number" id="overrideRaise" min="0" step="0.25" placeholder="0.00"
-              style="max-width:110px;" oninput="onOverrideRaiseChange()">
-            <span style="font-size:13px;color:var(--earth);">/hr</span>
-            <span id="overrideNewRatePreview" style="font-size:12px;color:#5a4a3c;margin-left:4px;"></span>
-          </div>
-          <!-- Convert to Salary toggle -->
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:var(--radius);margin-bottom:14px;cursor:pointer;" onclick="toggleConvertToSalary()">
-            <input type="checkbox" id="convertToSalaryCheck" onclick="event.stopPropagation();toggleConvertToSalary()" style="width:15px;height:15px;accent-color:var(--earth);cursor:pointer;flex-shrink:0;">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--onyx);">Convert to Salary</div>
-              <div style="font-size:11px;color:var(--earth);">Transitioning this employee to salaried compensation</div>
-            </div>
-          </div>
-          <label class="field-label" style="margin-bottom:6px;">Override Justification</label>
-          <textarea id="overrideComment" rows="3" placeholder="Explain the reason for granting a raise outside the standard formula (e.g. retention risk, exceptional circumstances, market adjustment)…" style="width:100%;margin-bottom:14px;"></textarea>
-
-          <!-- Goal Dates -->
-          <div class="goal-dates-wrap">
-            <div class="goal-dates-toggle" onclick="toggleGoalDates()">
-              <input type="checkbox" id="goalDatesCheck" onclick="event.stopPropagation();toggleGoalDates()" style="width:15px;height:15px;accent-color:var(--earth);cursor:pointer;flex-shrink:0;">
-              <div>
-                <div style="font-size:13px;font-weight:600;color:var(--onyx);">Set Goal Date(s)</div>
-                <div style="font-size:11px;color:var(--earth);">Add performance goals with target dates and raise milestones</div>
-              </div>
-            </div>
-            <div class="goal-dates-body" id="goalDatesBody">
-              <div id="goalsList"></div>
-              <button type="button" class="add-goal-btn" onclick="addGoal()">+ Add Goal</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Salary Conversion (hidden until Convert to Salary is checked) -->
-  <div class="card" id="salaryCard" style="display:none;">
-    <div class="card-header">
-      <h2>Salary Conversion</h2>
-      <span class="pts">Hourly ↔ Annual</span>
-    </div>
-    <div class="card-body">
-      <div class="salary-grid">
-        <div>
-          <label class="field-label">Annual Salary (optional)</label>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:14px;font-weight:600;color:var(--earth);">$</span>
-            <input type="number" id="salaryInput" min="0" step="500" placeholder="e.g. 45,000"
-              style="flex:1;" oninput="onSalaryInput()">
-            <span style="font-size:13px;color:var(--earth);">/yr</span>
-          </div>
-          <div style="font-size:11px;color:var(--earth);margin-top:4px;">Type a salary to see hourly equivalent, or leave blank to convert from hourly rate above.</div>
-        </div>
-        <div class="salary-result" id="salaryCurrentResult">
-          <div class="salary-result-label">Current Rate</div>
-          <div class="salary-result-value" id="salaryCurrentAnnual">—</div>
-          <div class="salary-result-sub" id="salaryCurrentHourly">Enter current rate above</div>
-        </div>
-        <div class="salary-result highlight" id="salaryNewResult">
-          <div class="salary-result-label">New Rate (after raise)</div>
-          <div class="salary-result-value" id="salaryNewAnnual">—</div>
-          <div class="salary-result-sub" id="salaryNewHourly">Complete scores above</div>
-        </div>
-      </div>
-      <div class="salary-note">Based on 2,080 hours/year (40 hrs/wk × 52 wks). Adjust salary input to use a different basis.</div>
+      <textarea id="mgrComments" rows="5" placeholder="Additional observations, context, or feedback from the reviewing manager or doctor…" style="width:100%;"></textarea>
     </div>
   </div>
 
@@ -1197,19 +1122,7 @@ function recalc() {
     }
   }
 
-  // Override path — bypass formula entirely
-  const ov = typeof getOverrideData === 'function' ? getOverrideData() : { active: false };
   const baseRateRaw = parseFloat(document.getElementById('currentRate').value) || 0;
-
-  if (ov.active && ov.raiseAmt > 0) {
-    const overrideNewRate = baseRateRaw + ov.raiseAmt;
-    document.getElementById('raisePreview').textContent   = `+$${ov.raiseAmt.toFixed(2)}/hr`;
-    document.getElementById('newRatePreview').textContent = `Override · New rate: $${overrideNewRate.toFixed(2)}/hr`;
-    const np = document.getElementById('overrideNewRatePreview');
-    if (np) np.textContent = baseRateRaw > 0 ? `→ $${overrideNewRate.toFixed(2)}/hr` : '';
-    if (typeof updateSalaryDisplay === 'function') updateSalaryDisplay(baseRateRaw, overrideNewRate);
-    return;
-  }
 
   // Raise calculation
   if (!tier || total < 70 || !gateA) {
@@ -1244,100 +1157,12 @@ function getBand(score) {
   return { band:'PIP / Does Not Meet', cls:'band-pip' };
 }
 
-// ─── OVERRIDE ────────────────────────────────────────────────────────────────
-
-function toggleOverride() {
-  const cb   = document.getElementById('overrideCheck');
-  const body = document.getElementById('overrideBody');
-  const badge = document.getElementById('overrideBadge');
-  const box  = document.getElementById('overrideBox');
-  if (event && event.target !== cb) cb.checked = !cb.checked;
-  const on = cb.checked;
-  body.classList.toggle('open', on);
-  badge.textContent = on ? 'Active' : 'Off';
-  badge.style.color = on ? '#e87770' : '';
-  box.style.borderColor = on ? '#e87770' : '';
-  recalc();
-  saveFormState();
-}
-
-// ─── GOAL DATES ───────────────────────────────────────────────────────────────
-
-let _goalCount = 0;
-
-function toggleGoalDates() {
-  const cb   = document.getElementById('goalDatesCheck');
-  if (event && event.target !== cb) cb.checked = !cb.checked;
-  const on   = cb.checked;
-  const body = document.getElementById('goalDatesBody');
-  body.classList.toggle('open', on);
-  if (on && document.getElementById('goalsList').children.length === 0) addGoal();
-  saveFormState();
-}
-
-function addGoal(desc = '', date = '', amt = '') {
-  const idx  = _goalCount++;
-  const list = document.getElementById('goalsList');
-  const row  = document.createElement('div');
-  row.className = 'goal-row';
-  row.dataset.goalIdx = idx;
-  row.innerHTML = `
-    <div>
-      <div class="goal-row-label">Goal Description</div>
-      <input type="text" class="goal-desc" placeholder="e.g. Achieve 95% sterilization score" value="${desc}" oninput="saveFormState()" style="width:100%;">
-    </div>
-    <div>
-      <div class="goal-row-label">Target Date</div>
-      <input type="date" class="goal-date" value="${date}" oninput="saveFormState()" style="width:100%;">
-    </div>
-    <div>
-      <div class="goal-row-label">Raise (+$/hr)</div>
-      <input type="number" class="goal-amt" min="0" step="0.25" placeholder="0.00" value="${amt}" oninput="saveFormState()" style="width:100%;">
-    </div>
-    <button type="button" class="goal-remove-btn" onclick="removeGoal(this)" title="Remove">×</button>`;
-  list.appendChild(row);
-  saveFormState();
-}
-
-function removeGoal(btn) {
-  btn.closest('.goal-row').remove();
-  saveFormState();
-}
-
-function getGoals() {
-  return [...document.querySelectorAll('#goalsList .goal-row')].map(row => ({
-    desc: row.querySelector('.goal-desc')?.value || '',
-    date: row.querySelector('.goal-date')?.value || '',
-    amt:  parseFloat(row.querySelector('.goal-amt')?.value) || 0,
-  }));
-}
-
-function getOverrideData() {
-  const cb            = document.getElementById('overrideCheck');
-  const comment       = document.getElementById('overrideComment')?.value || '';
-  const raiseAmt      = parseFloat(document.getElementById('overrideRaise')?.value) || 0;
-  const convertSalary = document.getElementById('convertToSalaryCheck')?.checked || false;
-  const goalsActive   = document.getElementById('goalDatesCheck')?.checked || false;
-  const goals         = goalsActive ? getGoals() : [];
-  return { active: cb?.checked || false, comment, raiseAmt, convertSalary, goalsActive, goals };
-}
-
-// ─── SALARY CONVERSION ───────────────────────────────────────────────────────
+// ─── SALARY CONVERSION (retained for raise display in score bar) ─────────────
 
 const HOURS_PER_YEAR = 2080;
 
 function fmtSalary(n) {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
-function toggleConvertToSalary() {
-  const cb = document.getElementById('convertToSalaryCheck');
-  if (event && event.target !== cb) cb.checked = !cb.checked;
-  const on = cb.checked;
-  document.getElementById('salaryCard').style.display = on ? '' : 'none';
-  if (!on) document.getElementById('salaryPreview').style.display = 'none';
-  else recalc();
-  saveFormState();
 }
 
 function onSalaryInput() {
@@ -1386,19 +1211,6 @@ function updateSalaryDisplay(currentHourly, newHourly) {
   }
 }
 
-function onOverrideRaiseChange() {
-  const ov = getOverrideData();
-  if (!ov.active || ov.raiseAmt <= 0) {
-    document.getElementById('overrideNewRatePreview').textContent = '';
-    recalc();
-    return;
-  }
-  const baseRate = parseFloat(document.getElementById('currentRate').value) || 0;
-  const newRate  = baseRate + ov.raiseAmt;
-  document.getElementById('overrideNewRatePreview').textContent = baseRate > 0 ? `→ $${newRate.toFixed(2)}/hr` : '';
-  recalc();
-  saveFormState();
-}
 
 function rateToTier(rate) {
   const r = parseFloat(rate);
@@ -1561,7 +1373,7 @@ async function handleSubmit() {
         for (let i = base; i < rows.length; i++) formState._dynamicSkills[k].push(rows[i].querySelector('.skill-name')?.textContent || '');
       }
     });
-    if (typeof getOverrideData === 'function') formState._override = getOverrideData();
+    formState._mgrComments = document.getElementById('mgrComments')?.value || '';
 
     btn.textContent = 'Submitting…';
     const jwt = getAuthJwt();
@@ -1629,11 +1441,7 @@ function buildSummary() {
   const goals = f('goals'), empComments = f('employeeComments');
   const kpiNotes = f('kpiNotes');
   const notesA = f('notesA'), notesB = f('notesB'), notesC = f('notesC');
-  const ov = typeof getOverrideData === 'function' ? getOverrideData() : { active: false };
-
-  const goalsText = (ov.goalsActive && ov.goals?.length)
-    ? ov.goals.map((g, i) => `  Goal ${i+1}: ${g.desc || '—'} | Target: ${g.date || 'TBD'} | Raise: +$${g.amt.toFixed(2)}/hr`).join('\n')
-    : '';
+  const mgrComments = document.getElementById('mgrComments')?.value || '';
 
   const text = [
     'RDH ANNUAL REVIEW — COMPENSATION SUMMARY',
@@ -1653,13 +1461,6 @@ function buildSummary() {
     'COMPENSATION DECISION',
     `  Raise:    ${raise}`,
     `  ${newRate}`,
-    ...(ov.active ? [
-      '',
-      '⚠ MANAGER OVERRIDE ACTIVE',
-      `  Override Raise: +$${ov.raiseAmt.toFixed(2)}/hr`,
-      ov.comment ? `  Justification: ${ov.comment}` : '',
-      ...(ov.goalsActive && goalsText ? ['  Performance Goals:', goalsText] : []),
-    ] : []),
     '',
     'NARRATIVE',
     `  Strengths: ${strengths}`,
@@ -1669,6 +1470,7 @@ function buildSummary() {
     `  Subsection A Notes: ${notesA}`,
     `  Subsection B Notes: ${notesB}`,
     `  Subsection C Notes: ${notesC}`,
+    ...(mgrComments ? ['', 'MANAGER/DOCTOR COMMENTS', `  ${mgrComments}`] : []),
     '',
     'EMPLOYEE RESPONSE',
     `  ${empComments}`,
@@ -1701,26 +1503,15 @@ function buildSummary() {
       <tr><td style="padding:7px 10px;">Gate A — Current Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateA}</td></tr>
       <tr style="background:#fff"><td style="padding:7px 10px;">Gate B — Next Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateB}</td></tr>
     </table>
-    <div style="background:#2A2E31;color:#fff;padding:18px 20px;border-radius:5px;margin-bottom:${ov.active ? '10px' : '20px'};text-align:center;">
+    <div style="background:#2A2E31;color:#fff;padding:18px 20px;border-radius:5px;margin-bottom:20px;text-align:center;">
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;opacity:0.6;margin-bottom:6px;">Recommended Raise</div>
       <div style="font-size:34px;font-family:Georgia,serif;">${raise}</div>
       <div style="font-size:13px;opacity:0.7;margin-top:4px;">${newRate}</div>
     </div>
-    ${ov.active ? `
-    <div style="background:#fff3cd;border:1.5px solid #e87770;border-radius:5px;padding:14px 18px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#c0392b;margin-bottom:6px;">⚠ Manager Override — Raise Granted Outside Formula</div>
-      <div style="font-size:13px;margin-bottom:4px;"><strong>Override Raise:</strong> +$${ov.raiseAmt.toFixed(2)}/hr</div>
-      ${ov.comment ? `<div style="font-size:13px;margin-bottom:4px;"><strong>Justification:</strong> ${ov.comment}</div>` : ''}
-      ${ov.goalsActive && ov.goals?.length ? `
-        <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#877765;margin:8px 0 4px;">Performance Goals</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <tr style="background:#e8e0d4;"><td style="padding:5px 8px;font-weight:600;">Goal</td><td style="padding:5px 8px;font-weight:600;">Target Date</td><td style="padding:5px 8px;font-weight:600;">Raise</td></tr>
-          ${ov.goals.map((g,i) => `<tr style="${i%2===1?'background:#fff':''}"><td style="padding:5px 8px;">${g.desc||'—'}</td><td style="padding:5px 8px;">${g.date||'TBD'}</td><td style="padding:5px 8px;">+$${g.amt.toFixed(2)}/hr</td></tr>`).join('')}
-        <\/table>` : ''}
-    <\/div>` : ''}
     ${strengths !== '—' ? `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#877765;margin-bottom:4px;">Strengths</div><div style="font-size:13px;">${strengths}</div></div>` : ''}
     ${growth !== '—' ? `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#877765;margin-bottom:4px;">Growth Areas</div><div style="font-size:13px;">${growth}</div></div>` : ''}
     ${goals !== '—' ? `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#877765;margin-bottom:4px;">Goals (Next 12 Months)</div><div style="font-size:13px;">${goals}</div></div>` : ''}
+    ${mgrComments ? `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#877765;margin-bottom:4px;">Manager/Doctor Comments</div><div style="font-size:13px;">${mgrComments}</div></div>` : ''}
     ${empComments !== '—' ? `<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#877765;margin-bottom:4px;">Employee Response</div><div style="font-size:13px;">${empComments}</div></div>` : ''}
     <div style="font-size:12px;color:#877765;border-top:1px solid #D6CDBD;padding-top:12px;margin-top:8px;">
       Employee: ${empSig} &nbsp;·&nbsp; OM: ${omSig} &nbsp;·&nbsp; Submitted: ${new Date().toLocaleDateString()}
@@ -1874,24 +1665,6 @@ async function generatePDF(summary) {
           el.style.letterSpacing = 'normal';
           el.textContent = text;
         });
-        // Force-show Manager Override body if active in live DOM
-        const overrideCheck = document.getElementById('overrideCheck');
-        if (overrideCheck && overrideCheck.checked) {
-          const ob = doc.getElementById('overrideBody');
-          if (ob) { ob.style.display = 'block'; ob.classList.add('open'); }
-        }
-        // Force-show Goal Dates body if active in live DOM
-        const goalDatesCheck = document.getElementById('goalDatesCheck');
-        if (goalDatesCheck && goalDatesCheck.checked) {
-          const gb = doc.getElementById('goalDatesBody');
-          if (gb) { gb.style.display = 'block'; gb.classList.add('open'); }
-        }
-        // Force-show Salary Conversion card if active in live DOM
-        const salaryCheck = document.getElementById('convertToSalaryCheck');
-        if (salaryCheck && salaryCheck.checked) {
-          const sc = doc.getElementById('salaryCard');
-          if (sc) sc.style.display = 'block';
-        }
         // Replace every textarea with a plain div — html2canvas clips textarea
         // content. Read value from live DOM (cloned inputs have empty .value).
         doc.querySelectorAll('textarea').forEach(ta => {
@@ -2023,7 +1796,7 @@ async function saveDraft() {
       for (let i = base; i < rows.length; i++) state._dynamicSkills[k].push(rows[i].querySelector('.skill-name')?.textContent || '');
     }
   });
-  if (typeof getOverrideData === 'function') state._override = getOverrideData();
+  state._mgrComments = document.getElementById('mgrComments')?.value || '';
 
   try {
     const existingId = getDraftId();
@@ -2115,25 +1888,7 @@ async function loadDraftFromUrl() {
           if (cannotBtn) cannotBtn.className = 'skill-btn' + (sv === 'cannot' ? ' cannot-do' : '');
         });
       }
-      if (state._override && typeof getOverrideData === 'function') {
-        const ov = state._override;
-        const cb = document.getElementById('overrideCheck');
-        if (cb) {
-          cb.checked = ov.active;
-          document.getElementById('overrideBody')?.classList.toggle('open', ov.active);
-          const badge = document.getElementById('overrideBadge');
-          if (badge) { badge.textContent = ov.active ? 'Active' : 'Off'; badge.style.color = ov.active ? '#e87770' : ''; }
-          const box = document.getElementById('overrideBox');
-          if (box) box.style.borderColor = ov.active ? '#e87770' : '';
-        }
-        if (ov.comment) { const el = document.getElementById('overrideComment'); if (el) el.value = ov.comment; }
-        if (ov.raiseAmt) { const el = document.getElementById('overrideRaise'); if (el) el.value = ov.raiseAmt; }
-        if (ov.convertSalary) { const cc = document.getElementById('convertToSalaryCheck'); if (cc) { cc.checked = true; document.getElementById('salaryCard').style.display = ''; } }
-        if (ov.goalsActive && ov.goals?.length) {
-          const gc = document.getElementById('goalDatesCheck');
-          if (gc) { gc.checked = true; document.getElementById('goalDatesBody')?.classList.add('open'); ov.goals.forEach(g => addGoal(g.desc, g.date, g.amt || '')); }
-        }
-      }
+      if (state._mgrComments) { const el = document.getElementById('mgrComments'); if (el) el.value = state._mgrComments; }
       if (document.getElementById('currentTier')?.value) onTierChange(true);
       recalc();
       showDraftNote('Draft loaded · ' + (draft.employee_name || ''));
@@ -2526,8 +2281,7 @@ function saveFormState() {
         }
       }
     });
-    // Save override/goal/salary state
-    if (typeof getOverrideData === 'function') state._override = getOverrideData();
+    state._mgrComments = document.getElementById('mgrComments')?.value || '';
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   }, 300);
 }
@@ -2574,32 +2328,8 @@ function restoreFormState() {
   }
   // Dynamic skills are restored by restoreCustomSkills() — do NOT also read _dynamicSkills here
   // (reading both sources was the root cause of the per-refresh duplication bug)
-  // Restore override/goal/salary state
-  if (state._override) {
-    const ov = state._override;
-    const cb = document.getElementById('overrideCheck');
-    if (cb) {
-      cb.checked = ov.active;
-      document.getElementById('overrideBody').classList.toggle('open', ov.active);
-      document.getElementById('overrideBadge').textContent = ov.active ? 'Active' : 'Off';
-      document.getElementById('overrideBadge').style.color = ov.active ? '#e87770' : '';
-      document.getElementById('overrideBox').style.borderColor = ov.active ? '#e87770' : '';
-    }
-    if (ov.comment)  { const el = document.getElementById('overrideComment'); if (el) el.value = ov.comment; }
-    if (ov.raiseAmt) { const el = document.getElementById('overrideRaise');   if (el) el.value = ov.raiseAmt; }
-    if (ov.convertSalary) {
-      const cc = document.getElementById('convertToSalaryCheck');
-      if (cc) { cc.checked = true; document.getElementById('salaryCard').style.display = ''; }
-    }
-    if (ov.goalsActive && ov.goals?.length) {
-      const gc = document.getElementById('goalDatesCheck');
-      if (gc) {
-        gc.checked = true;
-        document.getElementById('goalDatesBody').classList.add('open');
-        ov.goals.forEach(g => addGoal(g.desc, g.date, g.amt || ''));
-      }
-    }
-  }
+  // Restore manager/doctor comments
+  if (state._mgrComments) { const el = document.getElementById('mgrComments'); if (el) el.value = state._mgrComments; }
   // Trigger tier badge/gate update
   if (document.getElementById('currentTier').value) onTierChange(true);
   recalc();
