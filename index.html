@@ -1775,6 +1775,15 @@ async function generatePDF(summary) {
         doc.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
         // Strip edit-mode outlines
         doc.body.classList.remove('edit-mode');
+        // Remove contenteditable from all elements — html2canvas mangles whitespace inside them
+        doc.querySelectorAll('[contenteditable]').forEach(el => {
+          const text = el.textContent;
+          el.removeAttribute('contenteditable');
+          el.style.whiteSpace = 'normal';
+          el.style.wordSpacing = 'normal';
+          el.style.letterSpacing = 'normal';
+          el.textContent = text;
+        });
         // Force-show Manager Override body if active in live DOM
         const overrideCheck = document.getElementById('overrideCheck');
         if (overrideCheck && overrideCheck.checked) {
