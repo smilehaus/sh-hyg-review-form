@@ -707,34 +707,34 @@ const TIER_SKILLS = {
 };
 
 const KPIS = [
-  { id:'kpi1', name:'Production',            sub:'Gross or Net Production by the provider for the period selected',                                                                                                                                                      target:'3–5× hourly wage (3× FFS; 4–5× with ins. write-offs)' },
-  { id:'kpi2', name:'Production Per Visit',  sub:'Provider\'s Gross Production ÷ total Patient Visits for that provider (from patient ledger)',                                                                                                                         target:'Avg $152 or more' },
-  { id:'kpi3', name:'Reappointment %',       sub:'% of Hygiene Visits where the patient scheduled a subsequent hygiene appointment before leaving the office on the same day',                                                                                           target:'90% or more' },
-  { id:'kpi4', name:'Perio %',               sub:'% of hygiene patients seen for perio (one or more perio codes completed that day: D4320, D4321, D4341, D4342, D4355, D4381, D4346, D6081, D4921, D4910)',                                                             target:'30%' },
-  { id:'kpi5', name:'Fluoride Acceptance %', sub:'% of patients who had fluoride completed during their Hygiene Visit (codes D1206, D1208, D1209 placed on the ledger)',                                                                                               target:'Avg 31%' },
+  { id:'kpi1', name:'Production',            sub:'Gross or Net Production by the provider for the period selected',                                                                                                                                 target:'≥ 3× hourly wage × hours/day' },
+  { id:'kpi2', name:'Production Per Visit',  sub:'Provider\'s Gross Production ÷ total Patient Visits for that provider (KPI Dashboard)',                                                                                                         target:'Avg $210 or more' },
+  { id:'kpi3', name:'Reappointment %',       sub:'% of Hygiene Visits where the patient scheduled a subsequent hygiene appointment before leaving the office on the same day',                                                                     target:'90% or more' },
+  { id:'kpi4', name:'Perio %',               sub:'% of hygiene patients seen for perio (one or more perio codes completed that day: D4320, D4321, D4341, D4342, D4355, D4381, D4346, D6081, D4921, D4910)',                                       target:'≥ 30%' },
+  { id:'kpi5', name:'Wellness Scans',        sub:'Completed on all new patients and recall patients 1x/year',                                                                                                                                       target:'4+ scans/day' },
 ];
 
 const PERF_SECTIONS = [
-  { id:'A', title:'A — Clinical Excellence', items:[
-    { id:'a1', name:'Perio Diagnosis & Treatment Planning',  desc:'Accuracy of probing, staging, grading, and perio tx recommendations' },
-    { id:'a2', name:'Clinical Technique & Thoroughness',     desc:'Quality of scaling, root planing, and instrument selection' },
-    { id:'a3', name:'Radiograph Accuracy & Interpretation',  desc:'Correct exposure, angulation, diagnostic quality, and written findings' },
-    { id:'a4', name:'Infection Control & OSHA Compliance',   desc:'PPE use, sterilization protocol, and OSHA standard adherence' },
-    { id:'a5', name:'Chart Documentation & Accuracy',        desc:'Completeness, timeliness, and clinical accuracy of chart notes' },
+  { id:'A', title:'A.  Clinical Excellence', items:[
+    { id:'a1', name:'Perio Diagnosis & Treatment Planning',          desc:'Probing accuracy, 5mm+ bleeding protocol adherence, perio recommendations' },
+    { id:'a2', name:'Restorative & Ortho Co-Diagnosis',             desc:'Proactively identifies restorative needs, educates patients on findings and sets up seamless handoffs for the doctor' },
+    { id:'a3', name:'Digital Imaging & AI Technology Integration',  desc:'Consistent capture and patient review of wellness scans (completed under 4 mins) and intraoral photos, effective use of Pearl AI for OHI' },
+    { id:'a4', name:'Preventative & Adjunctive Protocols',          desc:'Routine recommendation of Fluoride, SDF, PreviDent, etc.' },
+    { id:'a5', name:'Clinical Documentation & Handoffs',            desc:'Completeness, timeliness, clinical accuracy of chart notes, seamless handoffs' },
   ]},
-  { id:'B', title:'B — Patient Experience', items:[
-    { id:'b1', name:'Patient Communication & Education',     desc:'Clear explanation of findings, homecare instructions, and empathy' },
-    { id:'b2', name:'Recall Motivation & Compliance',        desc:'Actively encourages patients to return on schedule; handles resistant patients' },
-    { id:'b3', name:'Complaint Handling & Empathy',          desc:'Handles sensitive conversations professionally and de-escalates effectively' },
-    { id:'b4', name:'New Patient Experience',                desc:'Thoroughness and warmth with first-time patients; builds trust from visit one' },
-    { id:'b5', name:'Patient Retention Initiative',          desc:'Proactively re-activates overdue patients and supports recare outreach' },
+  { id:'B', title:'B.  Patient Experience', items:[
+    { id:'b1', name:'Patient Communication & Education',  desc:'Clear explanation of findings, homecare instructions and empathy' },
+    { id:'b2', name:'Recall Motivation & Compliance',     desc:'In-chair reappointment commitment, overcoming patient hesitation, recare outreach support' },
+    { id:'b3', name:'Complaint Handling & Empathy',       desc:'Empathy, professionalism and managing sensitive patient situations' },
+    { id:'b4', name:'New Patient Experience',             desc:'Warm onboarding, trust building and comprehensive dental care.' },
+    { id:'b5', name:'Treatment Plan Acceptance',          desc:'Educating patients to increase acceptance of co-diagnosed doctor treatment' },
   ]},
-  { id:'C', title:'C — Team & Leadership', items:[
-    { id:'c1', name:'Daily Huddle Participation',            desc:'Arrives prepared, contributes relevant clinical intel, flags scheduling risks' },
-    { id:'c2', name:'Cross-Team Collaboration',              desc:'Supports DAs, front desk, and providers with open communication' },
-    { id:'c3', name:'SOP & Protocol Adherence',              desc:'Consistently follows Smile Haus SOPs without reminders' },
-    { id:'c4', name:'Continuing Education & Skill Growth',   desc:'Pursues CE, stays current on clinical evidence, applies new knowledge' },
-    { id:'c5', name:'Professionalism & Accountability',      desc:'Punctual, reliable, receptive to feedback, and models expected behavior' },
+  { id:'C', title:'C.  Team & Leadership', items:[
+    { id:'c1', name:'Morning Huddle Leadership',     desc:'Arriving prepared, presenting hygiene patients of the day, flagging schedule risks' },
+    { id:'c2', name:'Cross-Team Support',            desc:'Supports DAs, doctor/office flow and answering phones/confirming patients during downtime' },
+    { id:'c3', name:'Skill Growth & Mentorship',     desc:'Pursuing CE, implementing new clinical knowledge and mentoring team members' },
+    { id:'c4', name:'SOP Adherence & Cleanliness',   desc:'Operating without chronic protocol deviations and keeping treatment rooms clean/ready.' },
+    { id:'c5', name:'Professionalism & Accountability', desc:'Punctual, reliable, positive team energy and strict adherence to zero-tolerance gossip policy.' },
   ]},
 ];
 
@@ -2238,7 +2238,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-01-v2';          // bump this whenever TIER_SKILLS defaults change
+const TIER_CONTENT_VER = '2026-09-01-v3';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
