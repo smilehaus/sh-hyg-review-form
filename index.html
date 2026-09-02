@@ -176,8 +176,8 @@ body.form-locked .add-skill-btn { display: none; }
 .skill-row { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #f0ece4; }
 .skill-row:last-child { border-bottom: none; }
 .skill-row:nth-child(even) { background: #fafaf8; }
-.skill-name { flex: 1; font-size: 13px; color: var(--onyx); line-height: 1.4; font-family: var(--font-body); font-weight: 400; cursor: default; }
-.skill-name[contenteditable="true"] { color: var(--onyx); font-size: 13px; font-family: var(--font-body); font-weight: 400; cursor: text; outline: none; border: none; background: none; -webkit-font-smoothing: antialiased; }
+.skill-name { flex: 1; font-size: 13px; color: #1a120a; line-height: 1.4; font-family: var(--font-body); font-weight: 400; cursor: default; }
+.skill-name[contenteditable="true"] { color: #1a120a; font-size: 13px; font-family: var(--font-body); font-weight: 400; cursor: text; outline: none; border: none; background: none; -webkit-font-smoothing: antialiased; }
 .skill-delete-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--taupe); padding: 2px 4px; border-radius: 3px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s, color 0.15s; }
 .skill-row:hover .skill-delete-btn { opacity: 1; }
 .skill-delete-btn:hover { color: #c0392b; }
@@ -2240,7 +2240,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-01-v3';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-09-01-v4';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2484,18 +2484,8 @@ function restoreFormState() {
       if (cannotBtn) cannotBtn.className = 'skill-btn' + (sv === 'cannot' ? ' cannot-do' : '');
     });
   }
-  // Dynamic skills
-  if (state._dynamicSkills) {
-    Object.keys(state._dynamicSkills).forEach(tierKey => {
-      (state._dynamicSkills[tierKey] || []).forEach(text => {
-        addSkill(tierKey);
-        const body = document.getElementById(`tierBody_${tierKey}`);
-        const rows = body.querySelectorAll('.skill-row');
-        const nameEl = rows[rows.length - 1].querySelector('.skill-name');
-        if (nameEl) nameEl.textContent = text;
-      });
-    });
-  }
+  // Dynamic skills are restored by restoreCustomSkills() — do NOT also read _dynamicSkills here
+  // (reading both sources was the root cause of the per-refresh duplication bug)
   // Restore override/goal/salary state
   if (state._override) {
     const ov = state._override;
