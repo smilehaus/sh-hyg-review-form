@@ -1372,7 +1372,7 @@ async function handleSubmit() {
       if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') formState[el.id] = el.value;
     });
     document.querySelectorAll('[data-editable][id]').forEach(el => { formState[el.id] = el.textContent; });
-    ['T1','T2','T3','T4','T5'].forEach(k => {
+    ['T1','T2','T3','T4','T5','T6'].forEach(k => {
       const body = document.getElementById(`tierBody_${k}`);
       if (!body) return;
       const base = TIER_SKILLS[k].length;
@@ -1795,7 +1795,7 @@ async function saveDraft() {
     }
   });
   document.querySelectorAll('[data-editable][id]').forEach(el => { state[el.id] = el.textContent; });
-  ['T1','T2','T3','T4','T5'].forEach(k => {
+  ['T1','T2','T3','T4','T5','T6'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const base = TIER_SKILLS[k].length;
@@ -2092,14 +2092,14 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-02-v1';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-09-02-v2';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
 
 function getCustomSkills() {
   const cs = {};
-  ['T1','T2','T3','T4','T5'].forEach(k => {
+  ['T1','T2','T3','T4','T5','T6'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const base = TIER_SKILLS[k].length;
@@ -2123,10 +2123,13 @@ function restoreCustomSkills() {
   if (localStorage.getItem(TIER_VER_KEY) !== TIER_CONTENT_VER) {
     localStorage.removeItem(TEMPLATE_KEY);
     localStorage.removeItem(SKILLS_KEY);
-    // Also strip _dynamicSkills from saved form state so restoreFormState() doesn't re-add old skills
+    // Also strip tier/skill label keys from saved form state so restoreFormState() doesn't overwrite new defaults
     try {
       const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
       delete saved._dynamicSkills;
+      Object.keys(saved).forEach(k => {
+        if (k.startsWith('tierTitle_') || k.startsWith('tierRate_') || k.startsWith('skillName_')) delete saved[k];
+      });
       localStorage.setItem(SAVE_KEY, JSON.stringify(saved));
     } catch {}
     localStorage.setItem(TIER_VER_KEY, TIER_CONTENT_VER);
@@ -2198,7 +2201,7 @@ function restoreCustomSkills() {
 function saveTemplate(quiet = false) {
   const template = { customSkills: getCustomSkills(), skillNames: {}, kpiNames: {}, perfNames: {}, perfDescs: {} };
   // Capture any renamed base skill labels
-  ['T1','T2','T3','T4','T5'].forEach(k => {
+  ['T1','T2','T3','T4','T5','T6'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
     if (!body) return;
     const rows = body.querySelectorAll('.skill-row');
@@ -2278,7 +2281,7 @@ function saveFormState() {
       state[el.id] = el.textContent;
     });
     // Dynamic added skills (beyond base TIER_SKILLS count)
-    ['T1','T2','T3','T4','T5'].forEach(k => {
+    ['T1','T2','T3','T4','T5','T6'].forEach(k => {
       const body = document.getElementById(`tierBody_${k}`);
       if (!body) return;
       const base = TIER_SKILLS[k].length;
