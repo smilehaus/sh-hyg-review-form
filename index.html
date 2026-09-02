@@ -2221,7 +2221,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-01-v1';          // bump this whenever TIER_SKILLS defaults change
+const TIER_CONTENT_VER = '2026-09-01-v2';          // bump this whenever TIER_SKILLS defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2252,6 +2252,12 @@ function restoreCustomSkills() {
   if (localStorage.getItem(TIER_VER_KEY) !== TIER_CONTENT_VER) {
     localStorage.removeItem(TEMPLATE_KEY);
     localStorage.removeItem(SKILLS_KEY);
+    // Also strip _dynamicSkills from saved form state so restoreFormState() doesn't re-add old skills
+    try {
+      const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+      delete saved._dynamicSkills;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(saved));
+    } catch {}
     localStorage.setItem(TIER_VER_KEY, TIER_CONTENT_VER);
     return;
   }
