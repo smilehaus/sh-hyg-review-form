@@ -567,11 +567,12 @@ body.form-locked .skill-delete-btn { display: none; }
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
 const TIERS_STANDARD = {
-  T1: { floor:50, ceiling:55, x:0.020, next:'T2', label:'Associate Hygienist - Foundation', rate:'$50+/hr' },
-  T2: { floor:55, ceiling:60, x:0.025, next:'T3', label:'Core Hygienist',                   rate:'$55+/hr' },
-  T3: { floor:60, ceiling:65, x:0.030, next:'T4', label:'Senior Hygienist',                 rate:'$60+/hr' },
-  T4: { floor:65, ceiling:70, x:0.035, next:'T5', label:'Lead Hygienist',                   rate:'$65+/hr' },
-  T5: { floor:70, ceiling:75, x:0.040, next:null,  label:'Master Hygienist',                rate:'$70+/hr' },
+  T1: { floor:45, ceiling:50, x:0.015, next:'T2', label:'Hygienist - Newly Graduated',      rate:'$45+/hr' },
+  T2: { floor:50, ceiling:55, x:0.020, next:'T3', label:'Associate Hygienist - Foundation', rate:'$50+/hr' },
+  T3: { floor:55, ceiling:60, x:0.025, next:'T4', label:'Core Hygienist',                   rate:'$55+/hr' },
+  T4: { floor:60, ceiling:65, x:0.030, next:'T5', label:'Senior Hygienist',                 rate:'$60+/hr' },
+  T5: { floor:65, ceiling:70, x:0.035, next:'T6', label:'Lead Hygienist',                   rate:'$65+/hr' },
+  T6: { floor:70, ceiling:75, x:0.040, next:null,  label:'Master Hygienist',                rate:'$70+/hr' },
 };
 const TIERS = TIERS_STANDARD;
 
@@ -580,6 +581,14 @@ function getActiveTiers() { return TIERS_STANDARD; }
 // ⛔ ADMIN-ONLY — tier content locked. Edit via code only (not the UI).
 const TIER_SKILLS = {
   T1: [
+    'Completes prophylaxis appointments within the scheduled appointment time',
+    'Performs complete periodontal charting within the clinical time standard',
+    'Captures full-mouth radiographic series within the allotted clinical time',
+    'Completes and submits clinical chart notes by end of day',
+    'Completes iTero intraoral scans within the allotted time',
+    'Consistently produces intraoral photos with appropriate clarity, minimal artifacts, and complete coverage of all required surfaces',
+  ],
+  T2: [
     'Meets average daily production goal for past 90 days: $1,200 – $1,272/day',
     'Achieves Periodontal Treatment ≥ 30%',
     'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
@@ -593,7 +602,7 @@ const TIER_SKILLS = {
     'Demonstrates strong growth potential',
     'Learning adjunctive protocols SDF, Fluoride Varnish, Prevident 5000 Electric Toothbrush Whitening Kits',
   ],
-  T2: [
+  T3: [
     'Meets average daily production goal for past 90 days: $1,296 – $1,368/day',
     'Achieves Periodontal Treatment ≥ 30%',
     'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
@@ -602,7 +611,7 @@ const TIER_SKILLS = {
     'Confidently co-diagnoses restorative needs and sets up seamless doctor handoffs',
     'Supports back-office and clinical flow (assists DAs, supports doctor flow, helps confirm patients during downtime)',
   ],
-  T3: [
+  T4: [
     'Meets average daily production goal for past 90 days: $1,392 – $1,464/day',
     'Achieves Periodontal Treatment ≥ 30%',
     'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
@@ -615,7 +624,7 @@ const TIER_SKILLS = {
     'Actively pursues CE, shares clinical knowledge, and participates in clinical onboarding of new team members',
     'Continually confirms and maintains all Tier 1 and Tier 2 competencies',
   ],
-  T4: [
+  T5: [
     'Meets average daily production goal for past 90 days: $1,488 – $1,560/day',
     'Achieves Periodontal Treatment ≥ 30%',
     'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
@@ -625,7 +634,7 @@ const TIER_SKILLS = {
     'Co-runs monthly practice meetings (hygiene section)',
     'Mentors all hygiene team members',
   ],
-  T5: [
+  T6: [
     'Meets average daily production goal for past 90 days: $1,680 – $1,800/day',
     'Achieves Periodontal Treatment ≥ 30%',
     'Achieves Hygiene Reappointment/Pre-schedule rate ≥ 90%',
@@ -760,7 +769,7 @@ function renderPerf() {
 
 function renderTierAccordion() {
   const accordion = document.getElementById('tierAccordion');
-  const tierKeys = ['T1','T2','T3','T4','T5'];
+  const tierKeys = ['T1','T2','T3','T4','T5','T6'];
   accordion.innerHTML = tierKeys.map(key => {
     const tier = TIERS[key];
     const skills = TIER_SKILLS[key];
@@ -1050,7 +1059,7 @@ function recalc() {
   // Gate calculation
   const tierKey = document.getElementById('currentTier').value;
   const tier = getActiveTiers()[tierKey];
-  const tierKeys = ['T1','T2','T3','T4','T5'];
+  const tierKeys = ['T1','T2','T3','T4','T5','T6'];
 
   // Update tier badges and status indicators
   tierKeys.forEach(k => {
@@ -1311,7 +1320,7 @@ async function handleSubmit() {
   }
   // Require tier competency checklist filled for current tier and all tiers below
   {
-    const tierKeys = ['T1','T2','T3','T4','T5'];
+    const tierKeys = ['T1','T2','T3','T4','T5','T6'];
     const currentIdx = tierKeys.indexOf(tier);
     const tiersToCheck = tierKeys.slice(0, currentIdx + 1);
     let allMarked = true;
@@ -2083,7 +2092,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-01-v4';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-09-02-v1';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2339,9 +2348,9 @@ function restoreFormState() {
 
 // Populate currentTier dropdown from TIERS_STANDARD at load; onOfficeChange() will swap when needed
 (function initTierDropdown() {
-  const keys = ['T1','T2','T3','T4','T5'];
+  const keys = ['T1','T2','T3','T4','T5','T6'];
   const labels = [
-    'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
+    'Hygienist - Newly Graduated', 'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
   ];
   const sel = document.getElementById('currentTier');
   sel.innerHTML = '<option value="">— Select tier —</option>' +
