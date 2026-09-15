@@ -1185,8 +1185,8 @@ function recalc() {
   const baseRateRaw = parseFloat(document.getElementById('currentRate').value) || 0;
 
   // Raise calculation
-  if (!tier || total < 70 || !gateA) {
-    let msg = !tier ? 'Select tier above' : total < 70 ? 'Score below 70 — no raise' : 'Gate A not passed — no raise';
+  if (!tier || total < 60 || !gateA) {
+    let msg = !tier ? 'Select tier above' : total < 60 ? 'Score below 60 — no raise' : 'Gate A not passed — no raise';
     document.getElementById('raisePreview').textContent = '$0.00/hr';
     document.getElementById('newRatePreview').textContent = msg;
     if (typeof updateSalaryDisplay === 'function') updateSalaryDisplay(baseRateRaw, 0);
@@ -1197,7 +1197,7 @@ function recalc() {
   const pf = promoting ? 1.5 : 1.0;
   const targetTierObj = promoting ? getActiveTiers()[highestPromoTier] : tier;
   const baseRate = baseRateRaw || tier.floor;
-  const rawRaise = (total - 70) * tier.x * pf;
+  const rawRaise = (total - 60) * tier.x * pf;
   let newRate = Math.min(baseRate + rawRaise, targetTierObj.ceiling);
   newRate = Math.max(newRate, promoting ? targetTierObj.floor : baseRate);
   const finalRaise = newRate - baseRate;
