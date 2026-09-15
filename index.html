@@ -1145,47 +1145,35 @@ function recalc() {
     const currentIdx = tierKeys.indexOf(tierKey);
     gateA = tierKeys.slice(0, currentIdx + 1).every(k => getTierGateStatus(k) === 'pass');
 
-    // Gate B — three levels:
-    //   Floor:    production ≥ next-tier threshold → floor pay of next tier (one tier up only)
-    //   Full:     + perio ≥ 30% AND reappt ≥ 90% → score-based raise within next tier
-    //   Complete: kpisFull + all tier-N skills ✓ + prod ≥ PROD_THRESHOLDS[N.next]
-    //             → ceiling of tier N.  Can jump multiple tiers — e.g. T2→T4 ceiling if
-    //             all T4 skills ✓ and prod meets T5 threshold.
+    // Gate B — skill-based promotion system
+    // Skills 0/1/2 of each tier = production / perio / reappt (auto-checked from KPI actuals,
+    // settable by managers). "KPIs filled out" means these checkboxes are ✓.
+    //   Floor:    nextKey production skill (idx 0) ✓ → floor pay of next tier
+    //   Full:     + nextKey perio (1) and reappt (2) skills ✓ → score-based raise
+    //   Complete: ALL checkKey skills ✓ + checkKey.next production skill ✓ → ceiling of checkKey
+    //             Multi-tier: walks up — e.g. T2→T4 ceiling if all T4 skills ✓ and T5 prod ✓
     const nextKey = tier.next;
     if (nextKey) {
-      const parseKpi = (id, strip) => {
-        const v = document.getElementById(id)?.value?.trim();
-        return v ? (parseFloat(v.replace(strip, '')) || 0) : null;
-      };
-      const prod   = parseKpi('kpiActual_kpi1', /[$,\s]/g);
-      const reappt = parseKpi('kpiActual_kpi3', /[%\s]/g);
-      const perio  = parseKpi('kpiActual_kpi4', /[%\s]/g);
-      const kpisFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
+      const tiers = getActiveTiers();
+      const sk = (k, i) => skillState[`${k}_${i}`] === 'can';
 
-      // Floor / score-based: just the immediate next tier
-      if (PROD_THRESHOLDS[nextKey] !== undefined && prod !== null && prod >= PROD_THRESHOLDS[nextKey]) {
+      if (sk(nextKey, 0)) {
         gateBFloor = true;
         highestFloorTier = nextKey;
-        gateBFull = kpisFull;
+        if (sk(nextKey, 1) && sk(nextKey, 2)) gateBFull = true;
       }
 
-      // Multi-tier ceiling: walk from nextKey upward.
-      // Ceiling of tier N requires prod ≥ PROD_THRESHOLDS[N.next] + kpisFull + all N skills.
-      if (kpisFull) {
-        const tiers = getActiveTiers();
-        let checkKey = nextKey;
-        while (checkKey) {
-          const checkTierObj = tiers[checkKey];
-          if (!checkTierObj) break;
-          const aboveKey = checkTierObj.next;
-          if (!aboveKey || PROD_THRESHOLDS[aboveKey] === undefined) break;
-          if (prod === null || prod < PROD_THRESHOLDS[aboveKey]) break; // too low; higher tiers also fail
-          if (getTierGateStatus(checkKey) === 'pass') {
-            highestCompleteTier = checkKey;
-            gateBComplete = true;
-          }
-          checkKey = checkTierObj.next;
+      let checkKey = nextKey;
+      while (checkKey) {
+        const checkTierObj = tiers[checkKey];
+        if (!checkTierObj) break;
+        const aboveKey = checkTierObj.next;
+        if (!aboveKey || !sk(aboveKey, 0)) break; // above prod skill not ✓ → ceiling not reachable
+        if (getTierGateStatus(checkKey) === 'pass') {
+          highestCompleteTier = checkKey;
+          gateBComplete = true;
         }
+        checkKey = checkTierObj.next;
       }
     }
     highestPromoTier = highestCompleteTier || highestFloorTier;
