@@ -1249,9 +1249,11 @@ function recalc() {
     // All target-tier skills mastered + KPIs + next-tier production → ceiling of that tier
     newRate = completeTierObj.ceiling;
   } else if (gateBFull && floorTierObj) {
-    // KPIs met, partial skills → score-based within immediate next tier (up to ceiling - 0.01)
-    const rawRaise = (total - 60) * floorTierObj.x;
-    newRate = Math.min(floorTierObj.floor + rawRaise, floorTierObj.ceiling - 0.01);
+    // Skill completion % of promoted tier drives position from floor to just below ceiling
+    const skillIndices = getSkillIndices(highestFloorTier);
+    const completedSkills = skillIndices.filter(i => skillState[`${highestFloorTier}_${i}`] === 'can').length;
+    const completionPct = skillIndices.length > 0 ? completedSkills / skillIndices.length : 0;
+    newRate = floorTierObj.floor + completionPct * (floorTierObj.ceiling - floorTierObj.floor - 0.01);
     newRate = Math.max(newRate, floorTierObj.floor);
   } else if (gateBFloor && floorTierObj) {
     // Production threshold met only → flat floor of immediate next tier
