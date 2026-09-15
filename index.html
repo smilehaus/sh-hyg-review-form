@@ -1161,7 +1161,7 @@ function recalc() {
         highestPromoTier = nextKey;
         const kpisFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
         gateBFull = kpisFull;
-        gateBComplete = kpisFull && getTierGateStatus(nextKey) === 'pass';
+        gateBComplete = getTierGateStatus(nextKey) === 'pass';
       }
     }
   }
