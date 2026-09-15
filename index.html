@@ -853,6 +853,8 @@ function passAllSkills(tierKey) {
   });
   const btn = document.getElementById(`passAllBtn_${tierKey}`);
   if (btn) btn.classList.toggle('all-passed', !allAlreadyPassed);
+  const failBtn = document.getElementById(`failAllBtn_${tierKey}`);
+  if (failBtn) failBtn.classList.remove('all-failed');
   recalc(); saveFormState();
 }
 
@@ -1125,6 +1127,11 @@ function recalc() {
     statusEl.textContent = gs === 'pass' ? '✓ Pass' : gs === 'fail' ? '✗ Not Yet Passed' : '';
     const passBtn = document.getElementById(`passAllBtn_${k}`);
     if (passBtn) passBtn.classList.toggle('all-passed', gs === 'pass');
+    const failBtn = document.getElementById(`failAllBtn_${k}`);
+    if (failBtn) {
+      const allFailed = getSkillIndices(k).every(idx => skillState[`${k}_${idx}`] === 'cannot');
+      failBtn.classList.toggle('all-failed', allFailed);
+    }
   });
 
   // Gate A: all tiers from T1 through current tier must pass
