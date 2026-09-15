@@ -1168,11 +1168,14 @@ function recalc() {
         const checkTierObj = tiers[checkKey];
         if (!checkTierObj) break;
         const aboveKey = checkTierObj.next;
-        if (!aboveKey || !sk(aboveKey, 0)) break; // above prod skill not ✓ → ceiling not reachable
+        // Top tier (no above): ceiling = all skills ✓, no higher production needed
+        // Non-top tier: also need above tier's production skill ✓
+        if (aboveKey && !sk(aboveKey, 0)) break;
         if (getTierGateStatus(checkKey) === 'pass') {
           highestCompleteTier = checkKey;
           gateBComplete = true;
         }
+        if (!aboveKey) break; // reached top tier
         checkKey = checkTierObj.next;
       }
     }
