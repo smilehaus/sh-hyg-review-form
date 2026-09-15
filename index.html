@@ -1137,14 +1137,16 @@ function recalc() {
   });
 
   // Gate A: all tiers from T1 through current tier must pass
-  let gateA = false, gateBFloor = false, gateBFull = false;
+  let gateA = false, gateBFloor = false, gateBFull = false, gateBComplete = false;
   highestPromoTier = null;
   if (tier) {
     const currentIdx = tierKeys.indexOf(tierKey);
     gateA = tierKeys.slice(0, currentIdx + 1).every(k => getTierGateStatus(k) === 'pass');
 
-    // Gate B — production KPI ≥ next tier threshold → floor pay
-    //           + perio% ≥ 30% AND reappt% ≥ 90% → score-based raise within next tier
+    // Gate B — three levels:
+    //   Floor:    production ≥ next tier threshold → floor pay
+    //   Full:     + perio% ≥ 30% AND reappt% ≥ 90% → score-based raise within next tier
+    //   Complete: ALL next tier skills ✓ → ceiling of next tier (= floor of tier above)
     const nextKey = tier.next;
     if (nextKey && PROD_THRESHOLDS[nextKey] !== undefined) {
       const parseKpi = (id, strip) => {
@@ -1157,7 +1159,9 @@ function recalc() {
       gateBFloor = prod !== null && prod >= PROD_THRESHOLDS[nextKey];
       if (gateBFloor) {
         highestPromoTier = nextKey;
-        gateBFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
+        const kpisFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
+        gateBFull = kpisFull;
+        gateBComplete = kpisFull && getTierGateStatus(nextKey) === 'pass';
       }
     }
   }
@@ -1181,11 +1185,17 @@ function recalc() {
     gateASub.textContent = gateA ? 'Raise eligible based on score' : `Complete all ${tierKey} (and below) skills`;
 
     if (tier.next) {
-      const nextFloor = getActiveTiers()[tier.next]?.floor;
-      if (gateBFull) {
+      const nextTierD = getActiveTiers()[tier.next];
+      const nextFloor = nextTierD?.floor;
+      const nextCeiling = nextTierD?.ceiling;
+      if (gateBComplete) {
         gateBBox.className = 'gate-box pass';
-        gateBStatus.textContent = '✓ Passed';
-        gateBSub.textContent = `Promoting to ${highestPromoTier} — score raises above $${nextFloor}/hr`;
+        gateBStatus.textContent = `✓ Tier ${tier.next} Complete`;
+        gateBSub.textContent = `All ${tier.next} skills mastered — new rate: $${nextCeiling}/hr`;
+      } else if (gateBFull) {
+        gateBBox.className = 'gate-box partial';
+        gateBStatus.textContent = '⚡ KPIs Met';
+        gateBSub.textContent = `$${nextFloor}/hr + score raise — complete all ${tier.next} skills for $${nextCeiling}/hr`;
       } else if (gateBFloor) {
         gateBBox.className = 'gate-box partial';
         gateBStatus.textContent = '⚡ Floor Only';
@@ -1217,18 +1227,21 @@ function recalc() {
   const baseRate = baseRateRaw || tier.floor;
   const targetTierObj = gateBFloor ? getActiveTiers()[highestPromoTier] : tier;
   let newRate;
-  if (gateBFull) {
-    // Production + perio + reappt met → score-based raise within next tier
+  if (gateBComplete) {
+    // All next tier skills mastered → ceiling of next tier (= floor of tier above)
+    newRate = targetTierObj.ceiling;
+  } else if (gateBFull) {
+    // KPIs met (prod + perio + reappt), partial skills → score-based up to ceiling - 0.01
     const rawRaise = (total - 60) * targetTierObj.x;
-    newRate = Math.min(targetTierObj.floor + rawRaise, targetTierObj.ceiling);
+    newRate = Math.min(targetTierObj.floor + rawRaise, targetTierObj.ceiling - 0.01);
     newRate = Math.max(newRate, targetTierObj.floor);
   } else if (gateBFloor) {
-    // Production only → flat floor pay of next tier
+    // Production threshold met only → flat floor of next tier
     newRate = targetTierObj.floor;
   } else {
-    // No Gate B → score-based raise within current tier
+    // No Gate B → score-based raise within current tier, capped below next tier floor
     const rawRaise = (total - 60) * tier.x;
-    newRate = Math.min(baseRate + rawRaise, tier.ceiling);
+    newRate = Math.min(baseRate + rawRaise, tier.ceiling - 0.01);
     newRate = Math.max(newRate, baseRate);
   }
   const finalRaise = newRate - baseRate;
