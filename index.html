@@ -209,11 +209,13 @@ body.form-locked .skill-delete-btn { display: none; }
 .gate-box.pass { background: #d4edda; border-color: #2d6a3f; }
 .gate-box.fail { background: #fde8e8; border-color: #e74c3c; }
 .gate-box.incomplete { background: var(--alabaster); }
+.gate-box.partial { background: #fff8e6; border-color: #c8922a; }
 .gate-box-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; color: #3d2515; }
 .gate-box-status { font-size: 16px; font-weight: 700; }
 .gate-box.pass .gate-box-status { color: #2d6a3f; }
 .gate-box.fail .gate-box-status { color: #c0392b; }
 .gate-box.incomplete .gate-box-status { color: var(--taupe); }
+.gate-box.partial .gate-box-status { color: #c8922a; }
 .gate-box-sub { font-size: 11px; color: #4a3525; margin-top: 3px; }
 
 /* Signature block */
@@ -454,9 +456,9 @@ body.form-locked .skill-delete-btn { display: none; }
           <div class="gate-box-sub" id="gateASub">Required for any raise</div>
         </div>
         <div class="gate-box incomplete" id="gateBBox">
-          <div class="gate-box-label">Gate B — Next Tier Mastery</div>
+          <div class="gate-box-label">Gate B — Next Tier Promotion</div>
           <div class="gate-box-status" id="gateBStatus">Select your tier above</div>
-          <div class="gate-box-sub" id="gateBSub">Required for promotion + score ≥ 85</div>
+          <div class="gate-box-sub" id="gateBSub">Production goal for next tier unlocks floor pay</div>
         </div>
       </div>
     </div>
@@ -1135,24 +1137,29 @@ function recalc() {
   });
 
   // Gate A: all tiers from T1 through current tier must pass
-  let gateA = false, gateBResult = false;
-  highestPromoTier = null; // reset module-level
+  let gateA = false, gateBFloor = false, gateBFull = false;
+  highestPromoTier = null;
   if (tier) {
     const currentIdx = tierKeys.indexOf(tierKey);
-    const tiersForA = tierKeys.slice(0, currentIdx + 1);
-    gateA = tiersForA.every(k => getTierGateStatus(k) === 'pass');
+    gateA = tierKeys.slice(0, currentIdx + 1).every(k => getTierGateStatus(k) === 'pass');
 
-    // Gate B: walk upward from current+1 through consecutive passing tiers
-    let promoIdx = currentIdx + 1;
-    while (promoIdx < tierKeys.length) {
-      if (getTierGateStatus(tierKeys[promoIdx]) === 'pass') {
-        highestPromoTier = tierKeys[promoIdx];
-        promoIdx++;
-      } else {
-        break;
+    // Gate B — production KPI ≥ next tier threshold → floor pay
+    //           + perio% ≥ 30% AND reappt% ≥ 90% → score-based raise within next tier
+    const nextKey = tier.next;
+    if (nextKey && PROD_THRESHOLDS[nextKey] !== undefined) {
+      const parseKpi = (id, strip) => {
+        const v = document.getElementById(id)?.value?.trim();
+        return v ? (parseFloat(v.replace(strip, '')) || 0) : null;
+      };
+      const prod   = parseKpi('kpiActual_kpi1', /[$,\s]/g);
+      const reappt = parseKpi('kpiActual_kpi3', /[%\s]/g);
+      const perio  = parseKpi('kpiActual_kpi4', /[%\s]/g);
+      gateBFloor = prod !== null && prod >= PROD_THRESHOLDS[nextKey];
+      if (gateBFloor) {
+        highestPromoTier = nextKey;
+        gateBFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
       }
     }
-    gateBResult = highestPromoTier !== null;
   }
 
   // Update gate summary boxes
@@ -1167,20 +1174,27 @@ function recalc() {
     gateABox.className = 'gate-box incomplete'; gateAStatus.textContent = 'Select tier above';
     gateBBox.className = 'gate-box incomplete'; gateBStatus.textContent = 'Select tier above';
     gateASub.textContent = 'Required for any raise';
-    gateBSub.textContent = 'Required for promotion + score ≥ 85';
+    gateBSub.textContent = 'Production goal for next tier unlocks floor pay';
   } else {
     gateABox.className = 'gate-box ' + (gateA ? 'pass' : 'fail');
     gateAStatus.textContent = gateA ? '✓ Passed' : '✗ Not Yet Passed';
     gateASub.textContent = gateA ? 'Raise eligible based on score' : `Complete all ${tierKey} (and below) skills`;
 
     if (tier.next) {
-      gateBBox.className = 'gate-box ' + (gateBResult ? 'pass' : 'fail');
-      gateBStatus.textContent = gateBResult ? '✓ Passed' : '✗ Not Yet Passed';
-      if (gateBResult) {
-        const multiTier = highestPromoTier !== tier.next;
-        gateBSub.textContent = `Promotion to ${highestPromoTier} eligible (score ≥ 85)${multiTier ? ' · Multi-tier advance' : ''}`;
+      const nextFloor = getActiveTiers()[tier.next]?.floor;
+      if (gateBFull) {
+        gateBBox.className = 'gate-box pass';
+        gateBStatus.textContent = '✓ Passed';
+        gateBSub.textContent = `Promoting to ${highestPromoTier} — score raises above $${nextFloor}/hr`;
+      } else if (gateBFloor) {
+        gateBBox.className = 'gate-box partial';
+        gateBStatus.textContent = '⚡ Floor Only';
+        gateBSub.textContent = `$${nextFloor}/hr — also meet perio % + reappt % to score higher`;
       } else {
-        gateBSub.textContent = `Complete all ${tier.next} skills to promote`;
+        const thresh = PROD_THRESHOLDS[tier.next];
+        gateBBox.className = 'gate-box fail';
+        gateBStatus.textContent = '✗ Not Met';
+        gateBSub.textContent = `Need $${thresh}/day avg production for ${tier.next} floor ($${nextFloor}/hr)`;
       }
     } else {
       gateBBox.className = 'gate-box incomplete';
@@ -1200,17 +1214,27 @@ function recalc() {
     return;
   }
 
-  const promoting = gateBResult && total >= 85 && highestPromoTier;
-  const pf = promoting ? 1.5 : 1.0;
-  const targetTierObj = promoting ? getActiveTiers()[highestPromoTier] : tier;
   const baseRate = baseRateRaw || tier.floor;
-  const rawRaise = (total - 60) * tier.x * pf;
-  let newRate = Math.min(baseRate + rawRaise, targetTierObj.ceiling);
-  newRate = Math.max(newRate, promoting ? targetTierObj.floor : baseRate);
+  const targetTierObj = gateBFloor ? getActiveTiers()[highestPromoTier] : tier;
+  let newRate;
+  if (gateBFull) {
+    // Production + perio + reappt met → score-based raise within next tier
+    const rawRaise = (total - 60) * targetTierObj.x;
+    newRate = Math.min(targetTierObj.floor + rawRaise, targetTierObj.ceiling);
+    newRate = Math.max(newRate, targetTierObj.floor);
+  } else if (gateBFloor) {
+    // Production only → flat floor pay of next tier
+    newRate = targetTierObj.floor;
+  } else {
+    // No Gate B → score-based raise within current tier
+    const rawRaise = (total - 60) * tier.x;
+    newRate = Math.min(baseRate + rawRaise, tier.ceiling);
+    newRate = Math.max(newRate, baseRate);
+  }
   const finalRaise = newRate - baseRate;
 
   document.getElementById('raisePreview').textContent = `+$${finalRaise.toFixed(2)}/hr`;
-  document.getElementById('newRatePreview').textContent = promoting
+  document.getElementById('newRatePreview').textContent = gateBFloor
     ? `Promoting to ${highestPromoTier} · New rate: $${newRate.toFixed(2)}/hr`
     : `New rate: $${newRate.toFixed(2)}/hr`;
   if (typeof updateSalaryDisplay === 'function') updateSalaryDisplay(baseRate, newRate);
