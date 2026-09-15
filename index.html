@@ -719,7 +719,9 @@ function buildCustomFields() {
 
 const scores = {};     // kpi/perf item scores: 1–5 or 'na'
 const skillState = {}; // 'tierKey_idx': 'can' | 'cannot' | null
-let highestPromoTier = null; // highest consecutive passing tier above current (updated by recalc)
+let highestPromoTier = null;    // tier used for promotion display / raise label
+let highestFloorTier = null;    // immediate next tier (floor/score-based applies here)
+let highestCompleteTier = null; // highest tier whose ceiling is achieved (multi-tier jump)
 
 // ─── RENDER: KPIs ────────────────────────────────────────────────────────────
 
@@ -1138,17 +1140,19 @@ function recalc() {
 
   // Gate A: all tiers from T1 through current tier must pass
   let gateA = false, gateBFloor = false, gateBFull = false, gateBComplete = false;
-  highestPromoTier = null;
+  highestPromoTier = null; highestFloorTier = null; highestCompleteTier = null;
   if (tier) {
     const currentIdx = tierKeys.indexOf(tierKey);
     gateA = tierKeys.slice(0, currentIdx + 1).every(k => getTierGateStatus(k) === 'pass');
 
     // Gate B — three levels:
-    //   Floor:    production ≥ next tier threshold → floor pay
-    //   Full:     + perio% ≥ 30% AND reappt% ≥ 90% → score-based raise within next tier
-    //   Complete: ALL next tier skills ✓ → ceiling of next tier (= floor of tier above)
+    //   Floor:    production ≥ next-tier threshold → floor pay of next tier (one tier up only)
+    //   Full:     + perio ≥ 30% AND reappt ≥ 90% → score-based raise within next tier
+    //   Complete: kpisFull + all tier-N skills ✓ + prod ≥ PROD_THRESHOLDS[N.next]
+    //             → ceiling of tier N.  Can jump multiple tiers — e.g. T2→T4 ceiling if
+    //             all T4 skills ✓ and prod meets T5 threshold.
     const nextKey = tier.next;
-    if (nextKey && PROD_THRESHOLDS[nextKey] !== undefined) {
+    if (nextKey) {
       const parseKpi = (id, strip) => {
         const v = document.getElementById(id)?.value?.trim();
         return v ? (parseFloat(v.replace(strip, '')) || 0) : null;
@@ -1156,14 +1160,35 @@ function recalc() {
       const prod   = parseKpi('kpiActual_kpi1', /[$,\s]/g);
       const reappt = parseKpi('kpiActual_kpi3', /[%\s]/g);
       const perio  = parseKpi('kpiActual_kpi4', /[%\s]/g);
-      gateBFloor = prod !== null && prod >= PROD_THRESHOLDS[nextKey];
-      if (gateBFloor) {
-        highestPromoTier = nextKey;
-        const kpisFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
+      const kpisFull = perio !== null && perio >= 30 && reappt !== null && reappt >= 90;
+
+      // Floor / score-based: just the immediate next tier
+      if (PROD_THRESHOLDS[nextKey] !== undefined && prod !== null && prod >= PROD_THRESHOLDS[nextKey]) {
+        gateBFloor = true;
+        highestFloorTier = nextKey;
         gateBFull = kpisFull;
-        gateBComplete = kpisFull && getTierGateStatus(nextKey) === 'pass';
+      }
+
+      // Multi-tier ceiling: walk from nextKey upward.
+      // Ceiling of tier N requires prod ≥ PROD_THRESHOLDS[N.next] + kpisFull + all N skills.
+      if (kpisFull) {
+        const tiers = getActiveTiers();
+        let checkKey = nextKey;
+        while (checkKey) {
+          const checkTierObj = tiers[checkKey];
+          if (!checkTierObj) break;
+          const aboveKey = checkTierObj.next;
+          if (!aboveKey || PROD_THRESHOLDS[aboveKey] === undefined) break;
+          if (prod === null || prod < PROD_THRESHOLDS[aboveKey]) break; // too low; higher tiers also fail
+          if (getTierGateStatus(checkKey) === 'pass') {
+            highestCompleteTier = checkKey;
+            gateBComplete = true;
+          }
+          checkKey = checkTierObj.next;
+        }
       }
     }
+    highestPromoTier = highestCompleteTier || highestFloorTier;
   }
 
   // Update gate summary boxes
@@ -1189,9 +1214,10 @@ function recalc() {
       const nextFloor = nextTierD?.floor;
       const nextCeiling = nextTierD?.ceiling;
       if (gateBComplete) {
+        const completeTierD = getActiveTiers()[highestCompleteTier];
         gateBBox.className = 'gate-box pass';
-        gateBStatus.textContent = `✓ Tier ${tier.next} Complete`;
-        gateBSub.textContent = `All ${tier.next} skills mastered — new rate: $${nextCeiling}/hr`;
+        gateBStatus.textContent = `✓ Tier ${highestCompleteTier} Complete`;
+        gateBSub.textContent = `All ${highestCompleteTier} skills mastered — new rate: $${completeTierD.ceiling}/hr`;
       } else if (gateBFull) {
         gateBBox.className = 'gate-box partial';
         gateBStatus.textContent = '⚡ KPIs Met';
@@ -1225,21 +1251,22 @@ function recalc() {
   }
 
   const baseRate = baseRateRaw || tier.floor;
-  const targetTierObj = gateBFloor ? getActiveTiers()[highestPromoTier] : tier;
+  const floorTierObj    = highestFloorTier    ? getActiveTiers()[highestFloorTier]    : null;
+  const completeTierObj = highestCompleteTier ? getActiveTiers()[highestCompleteTier] : null;
   let newRate;
-  if (gateBComplete) {
-    // All next tier skills mastered → ceiling of next tier (= floor of tier above)
-    newRate = targetTierObj.ceiling;
-  } else if (gateBFull) {
-    // KPIs met (prod + perio + reappt), partial skills → score-based up to ceiling - 0.01
-    const rawRaise = (total - 60) * targetTierObj.x;
-    newRate = Math.min(targetTierObj.floor + rawRaise, targetTierObj.ceiling - 0.01);
-    newRate = Math.max(newRate, targetTierObj.floor);
-  } else if (gateBFloor) {
-    // Production threshold met only → flat floor of next tier
-    newRate = targetTierObj.floor;
+  if (gateBComplete && completeTierObj) {
+    // All target-tier skills mastered + KPIs + next-tier production → ceiling of that tier
+    newRate = completeTierObj.ceiling;
+  } else if (gateBFull && floorTierObj) {
+    // KPIs met, partial skills → score-based within immediate next tier (up to ceiling - 0.01)
+    const rawRaise = (total - 60) * floorTierObj.x;
+    newRate = Math.min(floorTierObj.floor + rawRaise, floorTierObj.ceiling - 0.01);
+    newRate = Math.max(newRate, floorTierObj.floor);
+  } else if (gateBFloor && floorTierObj) {
+    // Production threshold met only → flat floor of immediate next tier
+    newRate = floorTierObj.floor;
   } else {
-    // No Gate B → score-based raise within current tier, capped below next tier floor
+    // No Gate B → score-based raise within current tier
     const rawRaise = (total - 60) * tier.x;
     newRate = Math.min(baseRate + rawRaise, tier.ceiling - 0.01);
     newRate = Math.max(newRate, baseRate);
