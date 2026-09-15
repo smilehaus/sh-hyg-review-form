@@ -2320,7 +2320,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-02-v2';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-09-15-v3';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2506,13 +2506,8 @@ function _flushSave() {
     }
   });
   document.querySelectorAll('[data-editable][id]').forEach(el => {
-    if (el.classList.contains('skill-name')) {
-      const clone = el.cloneNode(true);
-      clone.querySelectorAll('.auto-kpi-badge').forEach(b => b.remove());
-      state[el.id] = clone.textContent.trim();
-    } else {
-      state[el.id] = el.textContent;
-    }
+    if (el.classList.contains('skill-name')) return; // handled by saveTemplate(), not form state
+    state[el.id] = el.textContent;
   });
   ['T1','T2','T3','T4','T5','T6'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
@@ -2548,12 +2543,10 @@ function restoreFormState() {
       el.value = state[id];
     }
   });
-  // Contenteditable fields (strip stale · KPI badge text from skill-name elements)
+  // Contenteditable fields (skill-name elements excluded — handled by restoreCustomSkills())
   document.querySelectorAll('[data-editable][id]').forEach(el => {
-    if (state[el.id] === undefined) return;
-    el.textContent = el.classList.contains('skill-name')
-      ? (state[el.id] || '').replace(/(\s*·\s*KPI)+\s*$/g, '').trim()
-      : state[el.id];
+    if (el.classList.contains('skill-name')) return;
+    if (state[el.id] !== undefined) el.textContent = state[el.id];
   });
   // Scores
   if (state._scores) {
