@@ -1246,8 +1246,20 @@ function recalc() {
   const completeTierObj = highestCompleteTier ? getActiveTiers()[highestCompleteTier] : null;
   let newRate;
   if (gateBComplete && completeTierObj) {
-    // All target-tier skills mastered + KPIs + next-tier production → ceiling of that tier
-    newRate = completeTierObj.ceiling;
+    // Highest complete tier awarded. Now check if the tier ABOVE it has perio+reappt ✓ —
+    // if so, do skill completion % within that tier (floor→ceiling range).
+    const aboveKey = completeTierObj.next;
+    const aboveTierObj = aboveKey ? getActiveTiers()[aboveKey] : null;
+    if (aboveTierObj && skillState[`${aboveKey}_1`] === 'can' && skillState[`${aboveKey}_2`] === 'can') {
+      const si = getSkillIndices(aboveKey);
+      const done = si.filter(i => skillState[`${aboveKey}_${i}`] === 'can').length;
+      const pct = si.length > 0 ? done / si.length : 0;
+      newRate = aboveTierObj.floor + pct * (aboveTierObj.ceiling - aboveTierObj.floor - 0.01);
+      newRate = Math.max(newRate, aboveTierObj.floor);
+    } else {
+      // Perio/reappt of next tier not ✓ — award ceiling of highest complete tier (= floor of next)
+      newRate = completeTierObj.ceiling;
+    }
   } else if (gateBFull && floorTierObj) {
     // Skill completion % of promoted tier drives position from floor to just below ceiling
     const skillIndices = getSkillIndices(highestFloorTier);
@@ -1256,8 +1268,15 @@ function recalc() {
     newRate = floorTierObj.floor + completionPct * (floorTierObj.ceiling - floorTierObj.floor - 0.01);
     newRate = Math.max(newRate, floorTierObj.floor);
   } else if (gateBFloor && floorTierObj) {
-    // Production threshold met only → flat floor of immediate next tier
-    newRate = floorTierObj.floor;
+    if (floorTierObj.next) {
+      // Non-top tier: production ✓ only → flat floor of that tier
+      newRate = floorTierObj.floor;
+    } else {
+      // Top tier (T6): production alone doesn't unlock $70 — need perio+reappt too (gateBFull)
+      const rawRaise = (total - 60) * tier.x;
+      newRate = Math.min(baseRate + rawRaise, tier.ceiling - 0.01);
+      newRate = Math.max(newRate, baseRate);
+    }
   } else {
     // No Gate B → score-based raise within current tier
     const rawRaise = (total - 60) * tier.x;
@@ -1267,7 +1286,8 @@ function recalc() {
   const finalRaise = newRate - baseRate;
 
   document.getElementById('raisePreview').textContent = `+$${finalRaise.toFixed(2)}/hr`;
-  document.getElementById('newRatePreview').textContent = gateBFloor
+  const isPromo = gateBComplete || (gateBFloor && floorTierObj && floorTierObj.next);
+  document.getElementById('newRatePreview').textContent = isPromo
     ? `Promoting to ${highestPromoTier} · New rate: $${newRate.toFixed(2)}/hr`
     : `New rate: $${newRate.toFixed(2)}/hr`;
   if (typeof updateSalaryDisplay === 'function') updateSalaryDisplay(baseRate, newRate);
