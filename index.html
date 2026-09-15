@@ -2506,7 +2506,13 @@ function _flushSave() {
     }
   });
   document.querySelectorAll('[data-editable][id]').forEach(el => {
-    state[el.id] = el.textContent;
+    if (el.classList.contains('skill-name')) {
+      const clone = el.cloneNode(true);
+      clone.querySelectorAll('.auto-kpi-badge').forEach(b => b.remove());
+      state[el.id] = clone.textContent.trim();
+    } else {
+      state[el.id] = el.textContent;
+    }
   });
   ['T1','T2','T3','T4','T5','T6'].forEach(k => {
     const body = document.getElementById(`tierBody_${k}`);
@@ -2542,9 +2548,12 @@ function restoreFormState() {
       el.value = state[id];
     }
   });
-  // Contenteditable fields
+  // Contenteditable fields (strip stale · KPI badge text from skill-name elements)
   document.querySelectorAll('[data-editable][id]').forEach(el => {
-    if (state[el.id] !== undefined) el.textContent = state[el.id];
+    if (state[el.id] === undefined) return;
+    el.textContent = el.classList.contains('skill-name')
+      ? (state[el.id] || '').replace(/(\s*·\s*KPI)+\s*$/g, '').trim()
+      : state[el.id];
   });
   // Scores
   if (state._scores) {
