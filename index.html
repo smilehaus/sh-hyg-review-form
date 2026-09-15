@@ -2319,36 +2319,35 @@ function toggleEditLabels() {
 }
 let _saveTimer = null;
 
+function _flushSave() {
+  const state = { _scores: {...scores}, _skillState: {...skillState}, _dynamicSkills: {} };
+  document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+      if (el.id && el.id !== 'pinInput') state[el.id] = el.value;
+    }
+  });
+  document.querySelectorAll('[data-editable][id]').forEach(el => {
+    state[el.id] = el.textContent;
+  });
+  ['T1','T2','T3','T4','T5','T6'].forEach(k => {
+    const body = document.getElementById(`tierBody_${k}`);
+    if (!body) return;
+    const base = TIER_SKILLS[k].length;
+    const rows = body.querySelectorAll('.skill-row');
+    if (rows.length > base) {
+      state._dynamicSkills[k] = [];
+      for (let i = base; i < rows.length; i++) {
+        state._dynamicSkills[k].push(rows[i].querySelector('.skill-name')?.textContent || '');
+      }
+    }
+  });
+  state._mgrComments = document.getElementById('mgrComments')?.value || '';
+  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+}
+
 function saveFormState() {
   clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(() => {
-    const state = { _scores: {...scores}, _skillState: {...skillState}, _dynamicSkills: {} };
-    // Regular inputs/selects/textareas
-    document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
-      if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
-        if (el.id && el.id !== 'pinInput') state[el.id] = el.value;
-      }
-    });
-    // Contenteditable fields
-    document.querySelectorAll('[data-editable][id]').forEach(el => {
-      state[el.id] = el.textContent;
-    });
-    // Dynamic added skills (beyond base TIER_SKILLS count)
-    ['T1','T2','T3','T4','T5','T6'].forEach(k => {
-      const body = document.getElementById(`tierBody_${k}`);
-      if (!body) return;
-      const base = TIER_SKILLS[k].length;
-      const rows = body.querySelectorAll('.skill-row');
-      if (rows.length > base) {
-        state._dynamicSkills[k] = [];
-        for (let i = base; i < rows.length; i++) {
-          state._dynamicSkills[k].push(rows[i].querySelector('.skill-name')?.textContent || '');
-        }
-      }
-    });
-    state._mgrComments = document.getElementById('mgrComments')?.value || '';
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-  }, 300);
+  _saveTimer = setTimeout(_flushSave, 300);
 }
 
 function restoreFormState() {
@@ -2439,16 +2438,17 @@ if (_urlDraftId) {
   restoreFormState();
   autoCheckKpiSkills(); // re-apply KPI actuals → tier competency auto-checks
 }
-// Auto-save on any input change
-document.querySelector('.main').addEventListener('input', saveFormState);
-document.querySelector('.main').addEventListener('change', saveFormState);
-document.querySelector('.submit-section').addEventListener('input', saveFormState);
+// Auto-save on any input/change in either section
+['input', 'change'].forEach(ev => {
+  document.querySelector('.main').addEventListener(ev, saveFormState);
+  document.querySelector('.submit-section').addEventListener(ev, saveFormState);
+});
 // Auto-save label edits whenever a [data-editable] field loses focus
 document.addEventListener('focusout', function(e) {
   if (e.target.hasAttribute('data-editable')) saveTemplate(true);
 });
-// Ensure localStorage is always current before page unload
-window.addEventListener('beforeunload', saveFormState);
+// Synchronous flush before the page navigates away — debounce timer won't fire in time
+window.addEventListener('beforeunload', () => { clearTimeout(_saveTimer); _flushSave(); });
 </script>
 </body>
 </html>
