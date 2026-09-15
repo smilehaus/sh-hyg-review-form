@@ -92,6 +92,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--earth); bor
 .kpi-name, .crit-name { font-size: 14px; font-weight: 500; color: #1a120a; }
 .kpi-sub, .crit-desc { font-size: 12px; color: #2e1f14; margin-top: 2px; }
 .kpi-target-input { border: none; background: transparent; font-family: var(--font-body); font-size: 13px; color: #2c1a08; text-align: center; width: 100%; padding: 2px 4px; cursor: text; border-radius: 3px; }
+.kpi-actual-input { width: 100%; border: 1px solid var(--sandstone); border-radius: 4px; padding: 5px 6px; font-size: 12px; font-family: var(--font-body); text-align: center; background: var(--alabaster); color: #1a120a; }
+.kpi-actual-input:focus { outline: none; border-color: var(--earth); }
+.skill-row.auto-kpi { background: rgba(135,119,101,0.07); }
+.skill-row.auto-kpi .skill-btn { opacity: 0.65; pointer-events: none; }
+.skill-row.auto-kpi .skill-delete-btn { display: none; }
+.auto-kpi-badge { font-size: 10px; color: var(--earth); font-weight: 600; margin-left: 6px; letter-spacing: 0.03em; }
 [contenteditable="true"] { outline: none; border-bottom: 1px dashed var(--sandstone); border-radius: 2px; cursor: text; padding: 0 2px; }
 body.edit-mode [contenteditable="true"] { background: #fffdf9; }
 [contenteditable="true"]:focus { background: #fff8ee; border-bottom-color: var(--earth); }
@@ -379,9 +385,10 @@ body.form-locked .skill-delete-btn { display: none; }
     <div style="padding:0">
       <table class="kpi-table">
         <thead><tr>
-          <th style="width:48%">KPI</th>
-          <th style="width:18%;text-align:center">Target</th>
-          <th style="width:34%;text-align:center">Score (1–5)</th>
+          <th style="width:40%">KPI</th>
+          <th style="width:14%;text-align:center">Target</th>
+          <th style="width:16%;text-align:center">Actual</th>
+          <th style="width:30%;text-align:center">Score (1–5)</th>
         </tr></thead>
         <tbody id="kpiBody"></tbody>
       </table>
@@ -646,11 +653,11 @@ const TIER_SKILLS = {
 };
 
 const KPIS = [
-  { id:'kpi1', name:'Production',            sub:'Gross or Net Production by the provider for the period selected',                                                                                                                                 target:'≥ 3× hourly wage × hours/day' },
-  { id:'kpi2', name:'Production Per Visit',  sub:'Provider\'s Gross Production ÷ total Patient Visits for that provider (KPI Dashboard)',                                                                                                         target:'Avg $210 or more' },
-  { id:'kpi3', name:'Reappointment %',       sub:'% of Hygiene Visits where the patient scheduled a subsequent hygiene appointment before leaving the office on the same day',                                                                     target:'90% or more' },
-  { id:'kpi4', name:'Perio %',               sub:'% of hygiene patients seen for perio (one or more perio codes completed that day: D4320, D4321, D4341, D4342, D4355, D4381, D4346, D6081, D4921, D4910)',                                       target:'≥ 30%' },
-  { id:'kpi5', name:'Wellness Scans',        sub:'Completed on all new patients and recall patients 1x/year',                                                                                                                                       target:'4+ scans/day' },
+  { id:'kpi1', name:'Production',            sub:'Gross or Net Production by the provider for the period selected',                                                                                                                                 target:'≥ 3× hourly wage × hours/day', actualPlaceholder:'$/day avg' },
+  { id:'kpi2', name:'Production Per Visit',  sub:'Provider\'s Gross Production ÷ total Patient Visits for that provider (KPI Dashboard)',                                                                                                         target:'Avg $210 or more',             actualPlaceholder:'$/visit avg' },
+  { id:'kpi3', name:'Reappointment %',       sub:'% of Hygiene Visits where the patient scheduled a subsequent hygiene appointment before leaving the office on the same day',                                                                     target:'90% or more',                  actualPlaceholder:'% achieved' },
+  { id:'kpi4', name:'Perio %',               sub:'% of hygiene patients seen for perio (one or more perio codes completed that day: D4320, D4321, D4341, D4342, D4355, D4381, D4346, D6081, D4921, D4910)',                                       target:'≥ 30%',                        actualPlaceholder:'% achieved' },
+  { id:'kpi5', name:'Wellness Scans',        sub:'Completed on all new patients and recall patients 1x/year',                                                                                                                                       target:'4+ scans/day',                 actualPlaceholder:'avg/day' },
 ];
 
 const PERF_SECTIONS = [
@@ -723,6 +730,9 @@ function renderKPIs() {
       </td>
       <td style="text-align:center;">
         <div class="kpi-target-input" contenteditable="true" data-editable id="kpiTarget_${k.id}">${k.target}</div>
+      </td>
+      <td style="text-align:center;">
+        <input type="text" class="kpi-actual-input" id="kpiActual_${k.id}" placeholder="${k.actualPlaceholder || ''}" oninput="autoCheckKpiSkills()" autocomplete="off">
       </td>
       <td>
         <div class="score-group">
@@ -904,6 +914,47 @@ function deleteSkill(btn) {
 }
 
 // ─── Drag-and-drop reorder for skill rows ────────────────────────────────────
+
+// ─── KPI ACTUAL → TIER COMPETENCY AUTO-CHECK ────────────────────────────────
+// First 3 skills of T2-T6 are: [0] production goal, [1] perio %, [2] reappointment %
+const PROD_THRESHOLDS = { T2:1200, T3:1296, T4:1392, T5:1488, T6:1680 };
+
+function autoCheckKpiSkills() {
+  const parse = (id, strip) => {
+    const v = document.getElementById(id)?.value || '';
+    return v.trim() ? parseFloat(v.replace(strip, '')) || 0 : null;
+  };
+  const prod   = parse('kpiActual_kpi1', /[$,\s]/g);
+  const reappt = parse('kpiActual_kpi3', /[%\s]/g);
+  const perio  = parse('kpiActual_kpi4', /[%\s]/g);
+
+  ['T2','T3','T4','T5','T6'].forEach(tk => {
+    const checks = [
+      prod   !== null ? prod   >= PROD_THRESHOLDS[tk] : null,  // index 0 — production
+      perio  !== null ? perio  >= 30                   : null,  // index 1 — perio %
+      reappt !== null ? reappt >= 90                   : null,  // index 2 — reappointment %
+    ];
+    checks.forEach((met, idx) => {
+      if (met === null) return; // no actual entered — leave manual state alone
+      const sk = `${tk}_${idx}`;
+      skillState[sk] = met ? 'can' : 'cannot';
+      const canBtn    = document.getElementById(`skill_${tk}_${idx}_can`);
+      const cannotBtn = document.getElementById(`skill_${tk}_${idx}_cannot`);
+      const row = canBtn?.closest('.skill-row');
+      if (canBtn)    canBtn.className    = 'skill-btn' + (met ? ' can-do' : '');
+      if (cannotBtn) cannotBtn.className = 'skill-btn' + (!met ? ' cannot-do' : '');
+      if (row) {
+        row.classList.add('auto-kpi');
+        const nameEl = row.querySelector('.skill-name');
+        if (nameEl && !nameEl.querySelector('.auto-kpi-badge')) {
+          nameEl.insertAdjacentHTML('beforeend', '<span class="auto-kpi-badge">· KPI</span>');
+        }
+      }
+    });
+  });
+  recalc();
+  saveFormState();
+}
 
 let _dragRow = null;
 
@@ -1449,6 +1500,7 @@ function buildSummary() {
   const strengths = f('strengths'), growth = f('growthAreas');
   const goals = f('goals'), empComments = f('employeeComments');
   const kpiNotes = f('kpiNotes');
+  const kpiActuals = KPIS.map(k => { const v = f(`kpiActual_${k.id}`); return v && v !== '—' ? `${k.name}: ${v}` : null; }).filter(Boolean);
   const notesA = f('notesA'), notesB = f('notesB'), notesC = f('notesC');
   const mgrComments = document.getElementById('mgrComments')?.value || '';
 
@@ -1462,6 +1514,7 @@ function buildSummary() {
     `  Part I  — KPI Performance:       ${p1} / ${p1Max}`,
     `  Part II — In-Office Performance:  ${p2} / 75`,
     `  TOTAL:                            ${total} / ${totalMax}  —  ${band}`,
+    ...(kpiActuals.length ? ['', 'KPI ACTUALS', ...kpiActuals.map(a => `  ${a}`)] : []),
     '',
     'GATES',
     `  Gate A (Current Tier Mastery): ${gateA}`,
@@ -2384,6 +2437,7 @@ if (_urlDraftId) {
   // Fresh open — always clear any stale draft ID so this fill creates a new draft
   clearDraftId();
   restoreFormState();
+  autoCheckKpiSkills(); // re-apply KPI actuals → tier competency auto-checks
 }
 // Auto-save on any input change
 document.querySelector('.main').addEventListener('input', saveFormState);
