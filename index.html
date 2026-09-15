@@ -2392,11 +2392,11 @@ function restoreCustomSkills() {
       });
     });
   }
-  // Restore edited base skill names
+  // Restore edited base skill names (strip any stale · KPI badge text from old saves)
   if (skillNames) {
     Object.keys(skillNames).forEach(key => {
       const el = document.getElementById(`skillName_${key}`);
-      if (el) el.textContent = skillNames[key];
+      if (el) el.textContent = (skillNames[key] || '').replace(/(\s*·\s*KPI)+\s*$/g, '').trim();
     });
   }
   // Restore edited KPI names and subtitles
@@ -2434,7 +2434,11 @@ function saveTemplate(quiet = false) {
     if (!body) return;
     const rows = body.querySelectorAll('.skill-row');
     TIER_SKILLS[k].forEach((orig, i) => {
-      const current = rows[i]?.querySelector('.skill-name')?.textContent || '';
+      const sn = rows[i]?.querySelector('.skill-name');
+      if (!sn) return;
+      const clone = sn.cloneNode(true);
+      clone.querySelectorAll('.auto-kpi-badge').forEach(b => b.remove());
+      const current = clone.textContent.trim();
       if (current && current !== orig) template.skillNames[`${k}_${i}`] = current;
     });
   });
