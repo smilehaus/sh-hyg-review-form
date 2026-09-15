@@ -540,9 +540,13 @@ body.form-locked .skill-delete-btn { display: none; }
                 <td style="padding:7px 10px;">All T3 ✓ · All T4 skills ✓ · T5 production ✓</td>
                 <td style="padding:7px 10px;text-align:center;font-weight:600;">$65.00</td>
               </tr>
+              <tr style="border-bottom:1px solid #e5d9c8;background:#fff;">
+                <td style="padding:7px 10px;">All T3 + T4 + T5 skills ✓ · T6 production ✓</td>
+                <td style="padding:7px 10px;text-align:center;font-weight:600;">$69.00</td>
+              </tr>
               <tr>
-                <td style="padding:7px 10px;">All T3 + T4 + T5 skills ✓ · T6 prod + perio + reappt ✓</td>
-                <td style="padding:7px 10px;text-align:center;font-weight:600;">$70–$74</td>
+                <td style="padding:7px 10px;">All T6 skills ✓</td>
+                <td style="padding:7px 10px;text-align:center;font-weight:600;">$70.00</td>
               </tr>
             </tbody>
           </table>
@@ -667,8 +671,8 @@ const TIERS_STANDARD = {
   T2: { floor:50, ceiling:55, x:0.020, next:'T3', label:'Associate Hygienist - Foundation', rate:'$50+/hr' },
   T3: { floor:55, ceiling:60, x:0.025, next:'T4', label:'Core Hygienist',                   rate:'$55+/hr' },
   T4: { floor:60, ceiling:65, x:0.030, next:'T5', label:'Senior Hygienist',                 rate:'$60+/hr' },
-  T5: { floor:65, ceiling:70, x:0.035, next:'T6', label:'Lead Hygienist',                   rate:'$65+/hr' },
-  T6: { floor:70, ceiling:75, x:0.040, next:null,  label:'Master Hygienist',                rate:'$70+/hr' },
+  T5: { floor:65, ceiling:69, x:0.035, next:'T6', label:'Lead Hygienist',                   rate:'$65+/hr' },
+  T6: { floor:69, ceiling:70, x:0.040, next:null,  label:'Master Hygienist',                rate:'$70/hr'  },
 };
 const TIERS = TIERS_STANDARD;
 
@@ -1363,15 +1367,7 @@ function recalc() {
     newRate = floorTierObj.floor + completionPct * (floorTierObj.ceiling - floorTierObj.floor - 0.01);
     newRate = Math.max(newRate, floorTierObj.floor);
   } else if (gateBFloor && floorTierObj) {
-    if (floorTierObj.next) {
-      // Non-top tier: production ✓ only → flat floor of that tier
-      newRate = floorTierObj.floor;
-    } else {
-      // Top tier (T6): production alone doesn't unlock $70 — need perio+reappt too (gateBFull)
-      const rawRaise = (total - 60) * tier.x;
-      newRate = Math.min(baseRate + rawRaise, tier.ceiling - 0.01);
-      newRate = Math.max(newRate, baseRate);
-    }
+    newRate = floorTierObj.floor;
   } else {
     // No Gate B → score-based raise within current tier
     const rawRaise = (total - 60) * tier.x;
@@ -1381,7 +1377,7 @@ function recalc() {
   const finalRaise = newRate - baseRate;
 
   document.getElementById('raisePreview').textContent = `+$${finalRaise.toFixed(2)}/hr`;
-  const isPromo = gateBComplete || (gateBFloor && floorTierObj && floorTierObj.next);
+  const isPromo = gateBComplete || (gateBFloor && floorTierObj);
   document.getElementById('newRatePreview').textContent = isPromo
     ? `Promoting to ${highestPromoTier} · New rate: $${newRate.toFixed(2)}/hr`
     : `New rate: $${newRate.toFixed(2)}/hr`;
