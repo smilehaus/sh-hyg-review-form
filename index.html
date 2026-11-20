@@ -123,6 +123,11 @@ body.edit-mode [data-editable] { outline: 1px dashed var(--earth) !important; ba
 .score-na { width: 38px; height: 34px; border: 1.5px solid var(--sandstone); background: var(--white); border-radius: var(--radius); cursor: pointer; font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--taupe); transition: all 0.12s; }
 .score-na:hover { border-color: var(--taupe); }
 .score-na.active { background: var(--taupe); border-color: var(--taupe); color: var(--white); }
+.kpi-status-wrap { display:flex; gap:6px; justify-content:center; }
+.kpi-status-btn { height:34px; padding:0 12px; border-radius: var(--radius); border:1.5px solid var(--sandstone); background:var(--white); font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.12s; color:var(--onyx); opacity:0.6; }
+.kpi-status-btn:hover { opacity:1; }
+.kpi-status-btn.pass.active { background:#d4edda; border-color:#2d6a3f; color:#2d6a3f; opacity:1; }
+.kpi-status-btn.fail.active { background:#fde8e8; border-color:#c0392b; color:#c0392b; opacity:1; }
 
 /* Section subtotals + notes */
 .subtotal-row { text-align: right; padding: 8px 14px; font-size: 13px; color: var(--onyx); font-weight: 600; border-top: 1px solid var(--sandstone); background: var(--alabaster); }
@@ -327,16 +332,12 @@ body.form-locked .skill-delete-btn { display: none; }
   <!-- Sticky score summary -->
   <div class="score-summary">
     <div class="sum-block">
-      <div class="sum-label">Part I — KPIs</div>
-      <div class="sum-value"><span id="p1Total">0</span><span style="font-size:12px;opacity:0.4">/<span id="p1Max">25</span></span></div>
-    </div>
-    <div class="sum-block">
       <div class="sum-label">Part II — Performance</div>
       <div class="sum-value"><span id="p2Total">0</span><span style="font-size:12px;opacity:0.4">/90</span></div>
     </div>
     <div class="sum-block">
       <div class="sum-label">Total Score</div>
-      <div class="sum-value highlight"><span id="totalScore">0</span><span style="font-size:12px;opacity:0.4">/<span id="totalMax">100</span></span></div>
+      <div class="sum-value highlight"><span id="totalScore">0</span><span style="font-size:12px;opacity:0.4">/90</span></div>
     </div>
     <div class="band-block">
       <div class="band-name" id="bandName" style="opacity:0.35;">Fill in scores below</div>
@@ -385,19 +386,18 @@ body.form-locked .skill-delete-btn { display: none; }
   <div class="card">
     <div class="card-header">
       <h2>Part I — KPI Performance</h2>
-      <span class="pts" id="p1Header">/ 25 pts</span>
+      <span class="pts">Reference only</span>
     </div>
     <div style="padding:0">
       <table class="kpi-table">
         <thead><tr>
-          <th style="width:40%">KPI</th>
-          <th style="width:14%;text-align:center">Target</th>
-          <th style="width:16%;text-align:center">Actual</th>
-          <th style="width:30%;text-align:center">Score (1–5)</th>
+          <th style="width:42%">KPI</th>
+          <th style="width:16%;text-align:center">Target</th>
+          <th style="width:18%;text-align:center">Actual</th>
+          <th style="width:24%;text-align:center">Status</th>
         </tr></thead>
         <tbody id="kpiBody"></tbody>
       </table>
-      <div class="subtotal-row">Part I Total: <span id="kpiSubtotal">0</span> / <span id="kpiDenom">25</span></div>
       <div class="section-notes">
         <label class="field-label">KPI Notes — Data Sources, Context, Exceptions</label>
         <textarea id="kpiNotes" placeholder="Pull actuals from Oryx, sterilization logs, QA reports, Doctor feedback. Note any extenuating circumstances."></textarea>
@@ -474,11 +474,9 @@ body.form-locked .skill-delete-btn { display: none; }
           How raises are calculated
         </button>
         <div id="raiseExplainer" hidden style="margin-top:10px;padding:14px 16px;background:#fdf8f2;border:1.5px solid #d9c9b0;border-radius:8px;font-size:13px;line-height:1.65;color:#3d2515;">
-          <p style="margin:0 0 10px;font-weight:700;">Part I/II Scores + two Gates must be cleared to earn a raise:</p>
-          <p style="margin:0 0 8px;"><strong>Part I — KPI Score</strong><br>
-          Must score at least <strong>15 / 25</strong>. Falling below means no raise, regardless of tier skills or Gate status.</p>
+          <p style="margin:0 0 10px;font-weight:700;">Part II Score + two Gates must be cleared to earn a raise:</p>
           <p style="margin:0 0 8px;"><strong>Part II — Performance Score</strong><br>
-          Must score at least <strong>54 / 90</strong>. Same rule — below this threshold, no raise.</p>
+          Must score at least <strong>54 / 90</strong>. Falling below means no raise, regardless of tier skills or Gate status.</p>
           <p style="margin:0 0 8px;"><strong>Gate A — Current Tier Mastery</strong><br>
           Every skill in your current tier (and all tiers below) must be checked ✓. If any are missing, the raise is $0 regardless of score.</p>
           <p style="margin:0 0 12px;"><strong>Gate B — Next Tier Promotion</strong><br>
@@ -814,7 +812,8 @@ function buildCustomFields() {
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 
-const scores = {};     // kpi/perf item scores: 1–5 or 'na'
+const scores = {};     // perf item scores: 1–5
+const kpiStatus = {}; // kpi pass/fail: 'pass' | 'fail' | null
 const skillState = {}; // 'tierKey_idx': 'can' | 'cannot' | null
 let highestPromoTier = null;    // tier used for promotion display / raise label
 let highestFloorTier = null;    // immediate next tier (floor/score-based applies here)
@@ -835,10 +834,10 @@ function renderKPIs() {
       <td style="text-align:center;">
         <input type="text" class="kpi-actual-input" id="kpiActual_${k.id}" placeholder="${k.actualPlaceholder || ''}" oninput="autoCheckKpiSkills()" autocomplete="off">
       </td>
-      <td>
-        <div class="score-group">
-          ${[1,2,3,4,5].map(v => `<button class="score-btn" data-id="${k.id}" data-val="${v}" onclick="setScore('${k.id}',${v})">${v}</button>`).join('')}
-          ${k.optional ? `<button class="score-na" data-id="${k.id}" data-val="na" onclick="setScore('${k.id}','na')">N/A</button>` : ''}
+      <td style="text-align:center;">
+        <div class="kpi-status-wrap">
+          <button class="kpi-status-btn pass" id="kpiPass_${k.id}" onclick="setKpiStatus('${k.id}','pass')">✓ Met</button>
+          <button class="kpi-status-btn fail" id="kpiFail_${k.id}" onclick="setKpiStatus('${k.id}','fail')">✗ Not Met</button>
         </div>
       </td>
     </tr>`).join('');
@@ -939,6 +938,19 @@ function setScore(id, val) {
     btn.classList.toggle('active', String(btn.dataset.val) === String(val));
   });
   recalc();
+  saveFormState();
+}
+
+function setKpiStatus(id, val) {
+  if (kpiStatus[id] === val) {
+    kpiStatus[id] = null;
+    document.getElementById(`kpiPass_${id}`)?.classList.remove('active');
+    document.getElementById(`kpiFail_${id}`)?.classList.remove('active');
+  } else {
+    kpiStatus[id] = val;
+    document.getElementById(`kpiPass_${id}`)?.classList.toggle('active', val === 'pass');
+    document.getElementById(`kpiFail_${id}`)?.classList.toggle('active', val === 'fail');
+  }
   saveFormState();
 }
 
@@ -1176,15 +1188,6 @@ function getTierGateStatus(tierKey) {
 }
 
 function recalc() {
-  // Part I
-  let p1 = 0, p1Max = 0;
-  KPIS.forEach(k => {
-    if (scores[k.id] === 'na') return;
-    p1Max += 5;
-    if (scores[k.id]) p1 += scores[k.id];
-  });
-  if (p1Max === 0) p1Max = 25;
-
   // Part II
   let p2 = 0;
   PERF_SECTIONS.forEach(sec => {
@@ -1195,16 +1198,10 @@ function recalc() {
     p2 += st;
   });
 
-  const total = p1 + p2, totalMax = p1Max + 90;
+  const total = p2, totalMax = 90;
 
-  document.getElementById('p1Total').textContent = p1;
-  document.getElementById('p1Max').textContent = p1Max;
-  document.getElementById('kpiSubtotal').textContent = p1;
-  document.getElementById('kpiDenom').textContent = p1Max;
-  document.getElementById('p1Header').textContent = `/ ${p1Max} pts`;
   document.getElementById('p2Total').textContent = p2;
   document.getElementById('totalScore').textContent = total;
-  document.getElementById('totalMax').textContent = totalMax;
 
   const { band, cls } = getBand(total);
   const bandEl = document.getElementById('bandName');
@@ -1329,16 +1326,13 @@ function recalc() {
 
   const baseRateRaw = parseFloat(document.getElementById('currentRate').value) || 0;
 
-  // Raise calculation — minimum sub-scores: 15/25 KPI and 54/90 Performance
-  const p1Min = 15, p2Min = 54;
-  const belowP1 = p1 < p1Min;
+  // Raise calculation — minimum Part II score 54/90 + Gate A
+  const p2Min = 54;
   const belowP2 = p2 < p2Min;
-  if (!tier || total < 60 || belowP1 || belowP2 || !gateA) {
+  if (!tier || belowP2 || !gateA) {
     let msg;
     if (!tier) msg = 'Select tier above';
-    else if (belowP1) msg = `Part I below minimum (${p1}/${p1Max} — need ${p1Min}) — no raise`;
     else if (belowP2) msg = `Part II below minimum (${p2}/90 — need ${p2Min}) — no raise`;
-    else if (total < 60) msg = 'Total score below 60 — no raise';
     else msg = 'Gate A not passed — no raise';
     document.getElementById('raisePreview').textContent = '$0.00/hr';
     document.getElementById('newRatePreview').textContent = msg;
@@ -1375,8 +1369,8 @@ function recalc() {
   } else if (gateBFloor && floorTierObj) {
     newRate = floorTierObj.floor;
   } else {
-    // No Gate B → score-based raise within current tier
-    const rawRaise = (total - 60) * tier.x;
+    // No Gate B → score-based raise within current tier (Part II score drives raise)
+    const rawRaise = (total - 54) * tier.x;
     newRate = Math.min(baseRate + rawRaise, tier.ceiling - 0.01);
     newRate = Math.max(newRate, baseRate);
   }
@@ -1391,10 +1385,10 @@ function recalc() {
 }
 
 function getBand(score) {
-  if (score >= 100) return { band:'Outstanding', cls:'band-outstanding' };
-  if (score >= 85)  return { band:'Exceeds Expectations', cls:'band-exceeds' };
-  if (score >= 70)  return { band:'Meets Expectations', cls:'band-meets' };
-  if (score >= 55)  return { band:'Coaching Plan', cls:'band-coaching' };
+  if (score >= 81) return { band:'Outstanding', cls:'band-outstanding' };
+  if (score >= 72) return { band:'Exceeds Expectations', cls:'band-exceeds' };
+  if (score >= 63) return { band:'Meets Expectations', cls:'band-meets' };
+  if (score >= 54) return { band:'Coaching Plan', cls:'band-coaching' };
   return { band:'PIP / Does Not Meet', cls:'band-pip' };
 }
 
@@ -1599,7 +1593,7 @@ async function handleSubmit() {
     });
 
     // Capture full form state for re-edit support
-    const formState = { _scores: {...scores}, _skillState: {...skillState}, _dynamicSkills: {} };
+    const formState = { _scores: {...scores}, _kpiStatus: {...kpiStatus}, _skillState: {...skillState}, _dynamicSkills: {} };
     document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
       if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') formState[el.id] = el.value;
     });
@@ -1692,9 +1686,8 @@ function buildSummary() {
     `Review Period: ${period}  |  Date: ${reviewDate}  |  Reviewer: ${reviewer}`,
     '',
     'SCORES',
-    `  Part I  — KPI Performance:       ${p1} / ${p1Max}`,
     `  Part II — In-Office Performance:  ${p2} / 90`,
-    `  TOTAL:                            ${total} / ${totalMax}  —  ${band}`,
+    `  TOTAL:                            ${total} / 90  —  ${band}`,
     ...(kpiActuals.length ? ['', 'KPI ACTUALS', ...kpiActuals.map(a => `  ${a}`)] : []),
     '',
     'GATES',
@@ -1741,8 +1734,7 @@ function buildSummary() {
       <div style="font-size:14px;margin-top:4px;opacity:0.9;">${band}</div>
     </div>
     <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;">
-      <tr><td style="padding:7px 10px;">Part I — KPI Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p1} / ${p1Max}</td></tr>
-      <tr style="background:#fff"><td style="padding:7px 10px;">Part II — In-Office Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p2} / 90</td></tr>
+      <tr><td style="padding:7px 10px;">Part II — In-Office Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p2} / 90</td></tr>
       <tr><td style="padding:7px 10px;">Gate A — Current Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateA}</td></tr>
       <tr style="background:#fff"><td style="padding:7px 10px;">Gate B — Next Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateB}</td></tr>
     </table>
@@ -1771,9 +1763,10 @@ function buildFormSnapshotDoc(summary) {
 
   // KPI detail rows
   const kpiRows = KPIS.map(k => {
-    const sc = scores[k.id];
-    const display = sc === 'na' ? 'N/A' : (sc || '—');
-    return `<tr><td style="padding:5px 10px;">${document.getElementById('kpiName_'+k.id)?.textContent || k.name}</td><td style="padding:5px 10px;text-align:center;">${display}</td></tr>`;
+    const st = kpiStatus[k.id];
+    const actual = document.getElementById(`kpiActual_${k.id}`)?.value || '—';
+    const statusDisplay = st === 'pass' ? '<span style="color:#2d6a3f;font-weight:600;">✓ Met</span>' : st === 'fail' ? '<span style="color:#c0392b;font-weight:600;">✗ Not Met</span>' : '—';
+    return `<tr><td style="padding:5px 10px;">${document.getElementById('kpiName_'+k.id)?.textContent || k.name}</td><td style="padding:5px 10px;text-align:center;">${actual}</td><td style="padding:5px 10px;text-align:center;">${statusDisplay}</td></tr>`;
   }).join('');
 
   // Performance detail rows
@@ -1814,8 +1807,8 @@ function buildFormSnapshotDoc(summary) {
 <tr><td style="padding:6px 10px;font-weight:600;color:#877765;">Review Period</td><td style="padding:6px 10px;">${f('reviewPeriod')}</td><td style="padding:6px 10px;font-weight:600;color:#877765;">Review Date</td><td style="padding:6px 10px;">${f('reviewDate')}</td></tr>
 <tr style="background:#f5f3ef"><td style="padding:6px 10px;font-weight:600;color:#877765;">Reviewer</td><td colspan="3" style="padding:6px 10px;">${f('reviewerName')}</td></tr></table>
 
-<div class="section-hdr">Part I — KPI Performance (${t('p1Total')} / ${t('p1Max')})</div>
-<table><tr style="background:#2A2E31;color:#fff"><td style="padding:6px 10px;font-size:12px;font-weight:700;">KPI</td><td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:center;width:80px;">Score</td></tr>${kpiRows}</table>
+<div class="section-hdr">Part I — KPI Performance (Reference)</div>
+<table><tr style="background:#2A2E31;color:#fff"><td style="padding:6px 10px;font-size:12px;font-weight:700;">KPI</td><td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:center;width:80px;">Actual</td><td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:center;width:80px;">Status</td></tr>${kpiRows}</table>
 ${f('kpiNotes') !== '—' ? `<div style="margin:8px 0;padding:8px 10px;background:#f5f3ef;font-size:12px;"><b>Notes:</b> ${f('kpiNotes')}</div>` : ''}
 
 <div class="section-hdr">Part II — In-Office Performance (${t('p2Total')} / 90)</div>
@@ -2022,7 +2015,7 @@ async function saveDraft() {
   showDraftNote('');
 
   // Collect full form state (same as saveFormState but synchronous)
-  const state = { _scores: {...scores}, _skillState: {...skillState}, _dynamicSkills: {} };
+  const state = { _scores: {...scores}, _kpiStatus: {...kpiStatus}, _skillState: {...skillState}, _dynamicSkills: {} };
   document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
     if ((el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.id && el.id !== 'pinInput') {
       state[el.id] = el.value;
@@ -2324,7 +2317,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-11-20-v4';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-11-20-v5';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2503,7 +2496,7 @@ function toggleEditLabels() {
 let _saveTimer = null;
 
 function _flushSave() {
-  const state = { _scores: {...scores}, _skillState: {...skillState}, _dynamicSkills: {} };
+  const state = { _scores: {...scores}, _kpiStatus: {...kpiStatus}, _skillState: {...skillState}, _dynamicSkills: {} };
   document.querySelectorAll('.main [id], .submit-section [id]').forEach(el => {
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
       if (el.id && el.id !== 'pinInput') state[el.id] = el.value;
@@ -2560,6 +2553,15 @@ function restoreFormState() {
       document.querySelectorAll(`[data-id="${id}"][data-val]`).forEach(btn => {
         btn.classList.toggle('active', String(btn.dataset.val) === String(val));
       });
+    });
+  }
+  // KPI statuses
+  if (state._kpiStatus) {
+    Object.assign(kpiStatus, state._kpiStatus);
+    Object.keys(state._kpiStatus).forEach(id => {
+      const val = state._kpiStatus[id];
+      document.getElementById(`kpiPass_${id}`)?.classList.toggle('active', val === 'pass');
+      document.getElementById(`kpiFail_${id}`)?.classList.toggle('active', val === 'fail');
     });
   }
   // Skill states
