@@ -329,7 +329,7 @@ body.form-locked .skill-delete-btn { display: none; }
     </div>
     <div class="sum-block">
       <div class="sum-label">Part II — Performance</div>
-      <div class="sum-value"><span id="p2Total">0</span><span style="font-size:12px;opacity:0.4">/75</span></div>
+      <div class="sum-value"><span id="p2Total">0</span><span style="font-size:12px;opacity:0.4">/90</span></div>
     </div>
     <div class="sum-block">
       <div class="sum-label">Total Score</div>
@@ -406,7 +406,7 @@ body.form-locked .skill-delete-btn { display: none; }
   <div class="card">
     <div class="card-header">
       <h2>Part II — In-Office Performance</h2>
-      <span class="pts">/ 75 pts (15 criteria × 5)</span>
+      <span class="pts">/ 90 pts (18 criteria × 5)</span>
     </div>
     <div style="padding:0" id="perfBody"></div>
   </div>
@@ -475,7 +475,7 @@ body.form-locked .skill-delete-btn { display: none; }
           <p style="margin:0 0 8px;"><strong>Part I — KPI Score</strong><br>
           Must score at least <strong>15 / 25</strong>. Falling below means no raise, regardless of tier skills or Gate status.</p>
           <p style="margin:0 0 8px;"><strong>Part II — Performance Score</strong><br>
-          Must score at least <strong>45 / 75</strong>. Same rule — below this threshold, no raise.</p>
+          Must score at least <strong>54 / 90</strong>. Same rule — below this threshold, no raise.</p>
           <p style="margin:0 0 8px;"><strong>Gate A — Current Tier Mastery</strong><br>
           Every skill in your current tier (and all tiers below) must be checked ✓. If any are missing, the raise is $0 regardless of score.</p>
           <p style="margin:0 0 12px;"><strong>Gate B — Next Tier Promotion</strong><br>
@@ -754,21 +754,24 @@ const KPIS = [
 ];
 
 const PERF_SECTIONS = [
-  { id:'A', title:'A.  Clinical Excellence', items:[
-    { id:'a1', name:'Perio Diagnosis & Treatment Planning',          desc:'Probing accuracy, 5mm+ bleeding protocol adherence, perio recommendations' },
-    { id:'a2', name:'Restorative & Ortho Co-Diagnosis',             desc:'Proactively identifies restorative needs, educates patients on findings and sets up seamless handoffs for the doctor' },
-    { id:'a3', name:'Digital Imaging & AI Technology Integration',  desc:'Consistent capture and patient review of wellness scans (completed under 4 mins) and intraoral photos, effective use of Pearl AI for OHI' },
-    { id:'a4', name:'Preventative & Adjunctive Protocols',          desc:'Routine recommendation of Fluoride, SDF, PreviDent, etc.' },
-    { id:'a5', name:'Clinical Documentation & Handoffs',            desc:'Completeness, timeliness, clinical accuracy of chart notes, seamless handoffs' },
+  { id:'A', title:'Clinical Excellence', items:[
+    { id:'a1', name:'Perio Diagnosis & Treatment Planning',  desc:'Probing accuracy, 5mm+ bleeding protocol adherence, perio recommendations' },
+    { id:'a2', name:'Restorative & Ortho Co-Diagnosis',     desc:'Proactively identifies restorative needs, educates patients on findings and sets up seamless handoffs for the doctor' },
+    { id:'a3', name:'Digital Imaging',                      desc:'Consistent capture and patient review of wellness scans (completed under 4 mins) and intraoral photos; X-rays are 100% of diagnostic quality; FMX/Pano taken when patient eligible' },
+    { id:'a3b', name:'AI Technology Integration',           desc:'Effective use of Pearl AI for OHI; reviews AI findings with patients to improve case acceptance and home care compliance' },
+    { id:'a4', name:'Preventative & Adjunctive Protocols',  desc:'Routine recommendation of Fluoride, SDF, PreviDent, etc.' },
+    { id:'a5', name:'Clinical Documentation',               desc:'Completeness, timeliness, and clinical accuracy of chart notes and full perio charting; routing sheets 100% accurate' },
+    { id:'a5b', name:'Handoffs',                            desc:'Seamless handoffs to doctor and front desk; verbal handoff included 100% of the time' },
+    { id:'a6', name:'OSHA Compliance & Infection Control',  desc:'Strict adherence to sterilization protocols, OSHA standards, and Smile Haus infection control SOPs without reminders' },
   ]},
-  { id:'B', title:'B.  Patient Experience', items:[
+  { id:'B', title:'Patient Experience', items:[
     { id:'b1', name:'Patient Communication & Education',  desc:'Clear explanation of findings, homecare instructions and empathy' },
     { id:'b2', name:'Recall Motivation & Compliance',     desc:'In-chair reappointment commitment, overcoming patient hesitation, recare outreach support' },
     { id:'b3', name:'Complaint Handling & Empathy',       desc:'Empathy, professionalism and managing sensitive patient situations' },
     { id:'b4', name:'New Patient Experience',             desc:'Warm onboarding, trust building and comprehensive dental care.' },
     { id:'b5', name:'Treatment Plan Acceptance',          desc:'Educating patients to increase acceptance of co-diagnosed doctor treatment' },
   ]},
-  { id:'C', title:'C.  Team & Leadership', items:[
+  { id:'C', title:'Team & Leadership', items:[
     { id:'c1', name:'Morning Huddle Leadership',     desc:'Arriving prepared, presenting hygiene patients of the day, flagging schedule risks' },
     { id:'c2', name:'Cross-Team Support',            desc:'Supports DAs, doctor/office flow and answering phones/confirming patients during downtime' },
     { id:'c3', name:'Skill Growth & Mentorship',     desc:'Pursuing CE, implementing new clinical knowledge and mentoring team members' },
@@ -1189,7 +1192,7 @@ function recalc() {
     p2 += st;
   });
 
-  const total = p1 + p2, totalMax = p1Max + 75;
+  const total = p1 + p2, totalMax = p1Max + 90;
 
   document.getElementById('p1Total').textContent = p1;
   document.getElementById('p1Max').textContent = p1Max;
@@ -1323,15 +1326,15 @@ function recalc() {
 
   const baseRateRaw = parseFloat(document.getElementById('currentRate').value) || 0;
 
-  // Raise calculation — minimum sub-scores: 15/25 KPI and 45/75 Performance
-  const p1Min = 15, p2Min = 45;
+  // Raise calculation — minimum sub-scores: 15/25 KPI and 54/90 Performance
+  const p1Min = 15, p2Min = 54;
   const belowP1 = p1 < p1Min;
   const belowP2 = p2 < p2Min;
   if (!tier || total < 60 || belowP1 || belowP2 || !gateA) {
     let msg;
     if (!tier) msg = 'Select tier above';
     else if (belowP1) msg = `Part I below minimum (${p1}/${p1Max} — need ${p1Min}) — no raise`;
-    else if (belowP2) msg = `Part II below minimum (${p2}/75 — need ${p2Min}) — no raise`;
+    else if (belowP2) msg = `Part II below minimum (${p2}/90 — need ${p2Min}) — no raise`;
     else if (total < 60) msg = 'Total score below 60 — no raise';
     else msg = 'Gate A not passed — no raise';
     document.getElementById('raisePreview').textContent = '$0.00/hr';
@@ -1687,7 +1690,7 @@ function buildSummary() {
     '',
     'SCORES',
     `  Part I  — KPI Performance:       ${p1} / ${p1Max}`,
-    `  Part II — In-Office Performance:  ${p2} / 75`,
+    `  Part II — In-Office Performance:  ${p2} / 90`,
     `  TOTAL:                            ${total} / ${totalMax}  —  ${band}`,
     ...(kpiActuals.length ? ['', 'KPI ACTUALS', ...kpiActuals.map(a => `  ${a}`)] : []),
     '',
@@ -1736,7 +1739,7 @@ function buildSummary() {
     </div>
     <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;">
       <tr><td style="padding:7px 10px;">Part I — KPI Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p1} / ${p1Max}</td></tr>
-      <tr style="background:#fff"><td style="padding:7px 10px;">Part II — In-Office Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p2} / 75</td></tr>
+      <tr style="background:#fff"><td style="padding:7px 10px;">Part II — In-Office Performance</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${p2} / 90</td></tr>
       <tr><td style="padding:7px 10px;">Gate A — Current Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateA}</td></tr>
       <tr style="background:#fff"><td style="padding:7px 10px;">Gate B — Next Tier Mastery</td><td style="padding:7px 10px;text-align:right;font-weight:600;">${gateB}</td></tr>
     </table>
@@ -1812,7 +1815,7 @@ function buildFormSnapshotDoc(summary) {
 <table><tr style="background:#2A2E31;color:#fff"><td style="padding:6px 10px;font-size:12px;font-weight:700;">KPI</td><td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:center;width:80px;">Score</td></tr>${kpiRows}</table>
 ${f('kpiNotes') !== '—' ? `<div style="margin:8px 0;padding:8px 10px;background:#f5f3ef;font-size:12px;"><b>Notes:</b> ${f('kpiNotes')}</div>` : ''}
 
-<div class="section-hdr">Part II — In-Office Performance (${t('p2Total')} / 75)</div>
+<div class="section-hdr">Part II — In-Office Performance (${t('p2Total')} / 90)</div>
 <table><tr style="background:#2A2E31;color:#fff"><td style="padding:6px 10px;font-size:12px;font-weight:700;">Item</td><td style="padding:6px 10px;font-size:12px;font-weight:700;text-align:center;width:80px;">Score</td></tr>${perfRows}</table>
 
 <div class="section-hdr">Tier Competency Checklist</div>
@@ -2128,6 +2131,7 @@ async function loadDraftFromUrl() {
       if (state._mgrComments) { const el = document.getElementById('mgrComments'); if (el) el.value = state._mgrComments; }
       if (document.getElementById('currentTier')?.value) onTierChange(true);
       recalc();
+      lockForm();
       showDraftNote('Draft loaded · ' + (draft.employee_name || ''));
       showToast('Draft resumed — ' + (draft.employee_name || 'draft') + ' · ' + (draft.office || ''), 'success');
     }
@@ -2183,9 +2187,9 @@ let formLocked = false;
 function toggleLock() {
   if (formLocked) {
     unlockForm();
-    showToast('Form unlocked — all fields and score buttons are active.', 'success');
   } else {
-    showToast('Form is in edit mode — all fields and score buttons are active.', 'success');
+    saveFormState();
+    lockForm();
   }
 }
 function getFormFields() {
@@ -2202,8 +2206,8 @@ function lockForm() {
   getEditables().forEach(el => { el.contentEditable = 'false'; });
   document.body.classList.add('form-locked');
   const btn = document.getElementById('editLockBtn');
-  if (btn) { btn.innerHTML = '\u270E Edit'; btn.classList.add('locked'); }
-  showToast('Form locked.', '');
+  if (btn) { btn.innerHTML = '&#9998; Edit'; btn.classList.remove('locked'); }
+  showToast('Changes saved.', 'success');
 }
 function unlockForm() {
   formLocked = false;
@@ -2211,8 +2215,8 @@ function unlockForm() {
   getEditables().forEach(el => { el.contentEditable = 'true'; });
   document.body.classList.remove('form-locked');
   const btn = document.getElementById('editLockBtn');
-  if (btn) { btn.innerHTML = '&#9998; Edit'; btn.classList.remove('locked'); }
-  showToast('Form unlocked. You can now edit.', 'success');
+  if (btn) { btn.innerHTML = '&#10003; Done Editing'; btn.classList.add('locked'); }
+  showToast('Edit mode \u2014 make your changes, then click Done Editing to save.', 'success');
 }
 let pinCallback = null;
 
@@ -2289,8 +2293,8 @@ function resetForm() {
     if (el) el.value = today;
   });
 
-  // Ensure form is not in locked state
-  document.body.classList.remove('form-locked');
+  // Re-lock after reset
+  lockForm();
 
   // Clear draft tracking
   clearDraftId();
@@ -2320,7 +2324,7 @@ function showToast(msg, type = '') {
 const SAVE_KEY         = 'sh_rdh_review_data';
 const TEMPLATE_KEY     = 'sh_rdh_review_template'; // persists forever — not cleared on reset
 const SKILLS_KEY       = 'sh_rdh_review_skills';   // auto-saved custom skills — not cleared on reset
-const TIER_CONTENT_VER = '2026-09-15-v3';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
+const TIER_CONTENT_VER = '2026-11-20-v4';          // bump this whenever TIER_SKILLS or KPI/perf defaults change
 const TIER_VER_KEY     = 'sh_rdh_tier_content_ver';
 
 // ─── TEMPLATE ────────────────────────────────────────────────────────────────
@@ -2618,6 +2622,7 @@ if (_urlDraftId) {
   clearDraftId();
   restoreFormState();
   autoCheckKpiSkills(); // re-apply KPI actuals → tier competency auto-checks
+  lockForm();           // start locked — click Edit to make changes
 }
 // Auto-save on any input/change in either section
 ['input', 'change'].forEach(ev => {
