@@ -34,9 +34,12 @@ body { font-family: var(--font-body); background: var(--alabaster); color: #1a12
 .edit-lock-btn.locked { border-color: rgba(255,200,100,0.5); color: #ffd580; }
 .edit-lock-btn.locked:hover { border-color: #ffd580; }
 /* Locked form state */
-body.form-locked input:not(#pinInput), body.form-locked select, body.form-locked textarea { opacity: 0.7; pointer-events: none; background: #f5f3ef; }
-body.form-locked .skill-btn, body.form-locked .score-btn, body.form-locked .pass-all-btn, body.form-locked .fail-all-btn, body.form-locked .tier-expand-btn, body.form-locked #submitBtn { pointer-events: none; opacity: 0.55; }
-body.form-locked .kpi-na-btn { pointer-events: none; opacity: 0.55; }
+body.form-locked [data-editable] { opacity: 0.55; pointer-events: none; cursor: default; }
+/* Floating Save Draft button */
+.float-save-btn { display:none; position:fixed; bottom:28px; right:28px; z-index:1000; background:var(--earth); color:#fff; border:none; border-radius:10px; padding:12px 20px; font-family:var(--font-body); font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.22); transition:background 0.18s, transform 0.12s; white-space:nowrap; }
+.float-save-btn:hover { background:var(--onyx); transform:translateY(-2px); }
+.float-save-btn:active { transform:translateY(0); }
+.float-save-btn:disabled { background:var(--sandstone); cursor:not-allowed; transform:none; }
 .pin-error { color: #c0392b; font-size: 13px; margin-top: 6px; display: none; }
 
 /* Main */
@@ -313,7 +316,7 @@ body.form-locked .skill-delete-btn { display: none; }
     <a id="backToHomeBtn" href="https://sh-review-dashboard.pages.dev/" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">&#127968; Home</a>
     <a id="backToRecordsBtn" href="https://sh-review-dashboard.pages.dev/records.html" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">&#8592; Records</a>
     <button id="headerSaveDraftBtn" onclick="saveDraft()" style="display:none;padding:6px 13px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:7px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">&#128190; Save Draft</button>
-    <button id="editLockBtn" class="edit-lock-btn" onclick="toggleLock()">&#9998; Edit</button>
+    <button id="editLockBtn" class="edit-lock-btn" onclick="toggleLock()">&#9998; Edit Labels</button>
     <button class="reset-btn" onclick="confirmReset()">&#8635; Reset</button>
     <button class="settings-btn" onclick="openSettingsGated()">&#9881; Settings</button>
   </div>
@@ -1484,9 +1487,9 @@ function onTierChange(fromRate = false) {
 
 function onOfficeChange() {
   const tiers = getActiveTiers();
-  const keys = ['T1','T2','T3','T4','T5'];
+  const keys = ['T1','T2','T3','T4','T5','T6'];
   const labels = [
-    'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
+    'Hygienist - Newly Graduated', 'Associate Hygienist - Foundation', 'Core Hygienist', 'Senior Hygienist', 'Lead Hygienist', 'Master Hygienist',
   ];
   // Update rate spans in tier accordion
   keys.forEach(k => {
@@ -2014,7 +2017,7 @@ async function saveDraft() {
   const hygName = document.getElementById('hygName')?.value?.trim() || '';
   const office = document.getElementById('homeOffice')?.value || '';
 
-  const _draftBtns = ['saveDraftBtn','headerSaveDraftBtn'].map(id => document.getElementById(id)).filter(Boolean);
+  const _draftBtns = ['saveDraftBtn','headerSaveDraftBtn','floatSaveDraftBtn'].map(id => document.getElementById(id)).filter(Boolean);
   _draftBtns.forEach(b => { b.disabled = true; b.textContent = '💾 Saving…'; });
   showDraftNote('');
 
@@ -2202,21 +2205,18 @@ function getEditables() {
 }
 function lockForm() {
   formLocked = true;
-  getFormFields().forEach(el => el.disabled = true);
   getEditables().forEach(el => { el.contentEditable = 'false'; });
   document.body.classList.add('form-locked');
   const btn = document.getElementById('editLockBtn');
-  if (btn) { btn.innerHTML = '&#9998; Edit'; btn.classList.remove('locked'); }
-  showToast('Changes saved.', 'success');
+  if (btn) { btn.innerHTML = '&#9998; Edit Labels'; btn.classList.remove('locked'); }
 }
 function unlockForm() {
   formLocked = false;
-  getFormFields().forEach(el => el.disabled = false);
   getEditables().forEach(el => { el.contentEditable = 'true'; });
   document.body.classList.remove('form-locked');
   const btn = document.getElementById('editLockBtn');
   if (btn) { btn.innerHTML = '&#10003; Done Editing'; btn.classList.add('locked'); }
-  showToast('Edit mode \u2014 make your changes, then click Done Editing to save.', 'success');
+  showToast('Label edit mode \u2014 customize KPI names, section titles, and criteria. Click Done Editing when finished.', 'success');
 }
 let pinCallback = null;
 
@@ -2611,6 +2611,8 @@ if (localStorage.getItem('sh_review_auth')) {
   ['backToHomeBtn','backToRecordsBtn','headerSaveDraftBtn'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'inline-flex';
   });
+  const floatBtn = document.getElementById('floatSaveDraftBtn');
+  if (floatBtn) floatBtn.style.display = 'block';
 }
 const _urlDraftId = new URLSearchParams(window.location.search).get('draft');
 if (_urlDraftId) {
@@ -2636,5 +2638,6 @@ document.addEventListener('focusout', function(e) {
 // Synchronous flush before the page navigates away — debounce timer won't fire in time
 window.addEventListener('beforeunload', () => { clearTimeout(_saveTimer); _flushSave(); });
 </script>
+<button id="floatSaveDraftBtn" class="float-save-btn" onclick="saveDraft()">&#128190; Save Draft</button>
 </body>
 </html>
